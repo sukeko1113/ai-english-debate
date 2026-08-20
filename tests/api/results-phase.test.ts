@@ -135,15 +135,16 @@ describe.skipIf(!hasDb)("POST /api/results/phase", () => {
   });
 
   it("最後のフェーズでは next_phase が null", async () => {
+    const last = "S140_REVIEW_AND_SAVE";
     await query(
-      `update lesson_sessions set current_phase = 'S10_OPENING' where id = $1`,
-      [sessionId],
+      `update lesson_sessions set current_phase = $2 where id = $1`,
+      [sessionId, last],
     );
 
-    const response = await POST(post(sessionId, "S10_OPENING"));
+    const response = await POST(post(sessionId, last));
 
     expect(await response.json()).toEqual({ ok: true, next_phase: null });
-    expect(await currentPhase(sessionId)).toBe("S10_OPENING");
+    expect(await currentPhase(sessionId)).toBe(last);
   });
 
   it("他人のセッションは 404。進めない", async () => {

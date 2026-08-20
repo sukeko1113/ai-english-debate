@@ -77,7 +77,8 @@ Edge Functions にビジネスロジックを置かない。DB アクセスは `
 対象教材は次の2つ。他テーマ・他レベルはまだ増やさない。
 
 - **Club Activities / intermediate**（`content/club-activities/against-intermediate.json`）
-  AI教師プロンプト v03 の授業。Take5 で有効なのは S00_START と S10_OPENING のみ
+  AI教師プロンプト v03 の授業。S00_START〜S80_LOGIC_CHECK と S110〜S140 が有効。
+  S90_DICTATION と S100_WRITING（タイピングが要る2つ）は未実装
 - **School Uniforms / beginner**（`content/school-uniforms/beginner.json`）
   Task 1〜4 で使った最小教材
 

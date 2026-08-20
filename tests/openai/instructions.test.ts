@@ -36,6 +36,7 @@ const firstPhase: LessonPhase = {
   focusSentence:
     "Good morning. I am speaking against making club activities optional.",
   openingJa: "では始めましょう。",
+  guidanceJa: [],
   questions: [
     {
       key: "s00-against",
@@ -53,6 +54,7 @@ const secondPhase: LessonPhase = {
   labelJa: "主張の確認",
   focusSentence: "I am speaking against making club activities optional.",
   openingJa: null,
+  guidanceJa: [],
   questions: [
     {
       key: "s10-optional",
@@ -92,10 +94,7 @@ describe("session instructions", () => {
 
     expect(text).toContain("いま扱うフェーズの id は S00_START です");
     // 現在フェーズの質問は「このターンで扱う質問」の側にある
-    const current = text.slice(
-      text.indexOf("## このターンで扱う質問"),
-      text.indexOf("## この先のフェーズ"),
-    );
+    const current = text.slice(text.indexOf("## このターンで扱う質問"));
     expect(current).toContain("`against` は賛成と反対のどちらですか？");
     expect(current).not.toContain("`optional` は必ずやる意味ですか");
   });
@@ -109,13 +108,16 @@ describe("session instructions", () => {
 
     // 先の内容はモデルには渡す（サーバー → OpenAI の経路のみ。
     // ブラウザには渡さない。docs/SECURITY.md §2）
-    const upcoming = text.slice(text.indexOf("## この先のフェーズ"));
+    const upcoming = text.slice(
+      text.indexOf("## この先のフェーズ（まだ始めない）"),
+      text.indexOf("## いま扱うところ"),
+    );
     expect(upcoming).toContain("S10_OPENING");
     expect(upcoming).toContain("`optional` は必ずやる意味ですか");
 
     // 進むのはアプリが決める
     expect(upcoming).toContain(
-      "**アプリが next_phase で名前を告げるまで、ここから先を始めないこと。**",
+      "**アプリが next_phase で名前を告げるまで、ここから先へ進まないこと。**",
     );
     expect(text).toContain(
       'mark_phase_complete({ phase_id: "S00_START" }) を呼びます',

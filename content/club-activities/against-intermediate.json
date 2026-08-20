@@ -20,39 +20,78 @@
     "script_ja_note": "反対立論。教材の主張は「この立論の主張」として扱い、外部の事実確認は授業の対象外。AI が統計や新しい事実を追加しない。"
   },
   "vocabulary": [
-    { "word": "speak against", "meaning": "〜に反対して話す", "example": "I am speaking against making club activities optional." },
-    { "word": "optional", "meaning": "任意の、選択できる", "example": "Club activities would become optional." },
-    { "word": "require A to do", "meaning": "Aに〜することを求める", "example": "Most Japanese schools require students to join clubs." },
-    { "word": "mandatory participation", "meaning": "強制参加", "example": "Some students feel stressed by mandatory participation." },
-    { "word": "too few choices", "meaning": "選択肢が少なすぎる", "example": "Schools offer too few choices." },
-    { "word": "rather than", "meaning": "〜ではなく", "example": "We should expand club variety rather than make them optional." },
-    { "word": "due to", "meaning": "〜のために（原因）", "example": "Many will close due to lack of members." }
+    {
+      "word": "speak against",
+      "meaning": "〜に反対して話す",
+      "example": "I am speaking against making club activities optional."
+    },
+    {
+      "word": "optional",
+      "meaning": "任意の、選択できる",
+      "example": "Club activities would become optional."
+    },
+    {
+      "word": "require A to do",
+      "meaning": "Aに〜することを求める",
+      "example": "Most Japanese schools require students to join clubs."
+    },
+    {
+      "word": "mandatory participation",
+      "meaning": "強制参加",
+      "example": "Some students feel stressed by mandatory participation."
+    },
+    {
+      "word": "too few choices",
+      "meaning": "選択肢が少なすぎる",
+      "example": "Schools offer too few choices."
+    },
+    {
+      "word": "rather than",
+      "meaning": "〜ではなく",
+      "example": "We should expand club variety rather than make them optional."
+    },
+    {
+      "word": "due to",
+      "meaning": "〜のために（原因）",
+      "example": "Many will close due to lack of members."
+    }
   ],
   "grammar_points": [
     {
       "point": "make A B",
       "explanation": "「AをBの状態にする」。ここでは A が club activities、B が optional。",
-      "examples": ["making club activities optional", "Making clubs optional will harm students' development."]
+      "examples": [
+        "making club activities optional",
+        "Making clubs optional will harm students' development."
+      ]
     },
     {
       "point": "not A but B",
       "explanation": "「AではなくB」。この立論の中心となる言い方。",
-      "examples": ["The real problem is not that clubs are required, but that schools offer too few choices."]
+      "examples": [
+        "The real problem is not that clubs are required, but that schools offer too few choices."
+      ]
     },
     {
       "point": "require A to do",
       "explanation": "「Aに〜することを求める」。",
-      "examples": ["Most Japanese schools require students to join clubs."]
+      "examples": [
+        "Most Japanese schools require students to join clubs."
+      ]
     },
     {
       "point": "rather than",
       "explanation": "「BではなくA」。A rather than B の順に注意。",
-      "examples": ["We should expand club variety rather than make them optional."]
+      "examples": [
+        "We should expand club variety rather than make them optional."
+      ]
     },
     {
       "point": "If ..., will ...",
       "explanation": "条件とその結果を述べる。",
-      "examples": ["If clubs become optional, many will close due to lack of members."]
+      "examples": [
+        "If clubs become optional, many will close due to lack of members."
+      ]
     }
   ],
   "questions": [],
@@ -60,8 +99,16 @@
     {
       "side": "against",
       "prompt": "You are against making club activities optional. Give two reasons in your own English.",
-      "constraints": { "min_reasons": 2, "language": "en", "turns": 2 },
-      "hint_topics_ja": ["部員不足でクラブが閉鎖する", "スキルや友情を育てる機会を失う", "本当の問題は選択肢が少ないこと"]
+      "constraints": {
+        "min_reasons": 2,
+        "language": "en",
+        "turns": 2
+      },
+      "hint_topics_ja": [
+        "部員不足でクラブが閉鎖する",
+        "スキルや友情を育てる機会を失う",
+        "本当の問題は選択肢が少ないこと"
+      ]
     }
   ],
   "ai_counterarguments": [
@@ -87,7 +134,14 @@
         {
           "key": "s00-against",
           "ask_ja": "`against` は賛成と反対のどちらですか？",
-          "accept": ["反対", "against", "opposition", "反対側", "反対する", "反対です"],
+          "accept": [
+            "反対",
+            "against",
+            "opposition",
+            "反対側",
+            "反対する",
+            "反対です"
+          ],
           "hints": [
             "against は方向を表す語で、「〜に向かって逆らう」イメージです。",
             "「賛成」なら for、「反対」なら against です。"
@@ -105,7 +159,14 @@
         {
           "key": "s10-optional",
           "ask_ja": "`optional` は、必ずやるという意味ですか、それとも選べるという意味ですか？",
-          "accept": ["選べる", "任意", "選択できる", "not required", "自由", "選択制"],
+          "accept": [
+            "選べる",
+            "任意",
+            "選択できる",
+            "not required",
+            "自由",
+            "選択制"
+          ],
           "hints": [
             "option（選択肢）と同じ語のなかまです。",
             "「必ずやる」なら required、「選べる」なら optional です。"
@@ -115,7 +176,12 @@
         {
           "key": "s10-make-a-b",
           "ask_ja": "`making club activities optional` は全体でどういう意味ですか？",
-          "accept": ["クラブ活動を任意にすること", "部活を選択制にすること", "部活動を任意にすること", "クラブを自由参加にすること"],
+          "accept": [
+            "クラブ活動を任意にすること",
+            "部活を選択制にすること",
+            "部活動を任意にすること",
+            "クラブを自由参加にすること"
+          ],
           "hints": [
             "`make A B` という形が使われています。",
             "A が club activities、B が optional です。「AをBの状態にする」と考えてみてください。"
@@ -123,10 +189,652 @@
           "confirm_ja": "はい。`make A B` で『AをBの状態にする』。ここでは『クラブ活動を任意にすること』です。"
         }
       ]
+    },
+    {
+      "id": "S20_SIGNPOST",
+      "section": "Signpost",
+      "label_ja": "立論の道案内",
+      "focus_sentence": "I will explain the present situation, examine the causes of problems, and show why this motion is dangerous.",
+      "questions": [
+        {
+          "key": "s20-role",
+          "ask_ja": "Signpost は、これから何を話すかを先に示す部分です。日本語なら何に近いと思いますか？",
+          "accept": [
+            "話の流れ",
+            "予告",
+            "目次",
+            "これから話す内容",
+            "見出し",
+            "案内"
+          ],
+          "hints": [
+            "スピーチの最初に「これから何を話すか」を伝えている部分です。",
+            "本や発表でいうと、最初に出てくるものです。"
+          ],
+          "confirm_ja": "そうです。ディベートでは聞き手に論理の道筋を示す役割があります。"
+        },
+        {
+          "key": "s20-three-1",
+          "ask_ja": "この Signpost では、これから3つ何を説明すると言っていますか。まず1つ目は？",
+          "accept": [
+            "present situation",
+            "現状",
+            "今の状況"
+          ],
+          "hints": [
+            "文の最初のほうに explain という動詞があります。その目的語です。",
+            "the present situation と言っています。"
+          ],
+          "confirm_ja": "はい、1つ目は現状（present situation）です。"
+        },
+        {
+          "key": "s20-three-2",
+          "ask_ja": "では2つ目は？",
+          "accept": [
+            "causes of problems",
+            "問題の原因",
+            "原因"
+          ],
+          "hints": [
+            "examine という動詞のうしろを見てください。",
+            "the causes of problems と言っています。"
+          ],
+          "confirm_ja": "そうです。2つ目は問題の原因です。"
+        },
+        {
+          "key": "s20-three-3",
+          "ask_ja": "3つ目は？",
+          "accept": [
+            "why this motion is dangerous",
+            "この動議がなぜ危険か",
+            "危険な理由",
+            "なぜ危険か"
+          ],
+          "hints": [
+            "show という動詞のうしろです。",
+            "why this motion is dangerous と言っています。"
+          ],
+          "confirm_ja": "はい。3つ目は、この動議がなぜ危険かです。"
+        },
+        {
+          "key": "s20-motion",
+          "ask_ja": "ここで `this motion` は何を指しますか？",
+          "accept": [
+            "making club activities optional",
+            "クラブ活動を任意にすること",
+            "部活を選択制にすること",
+            "任意化"
+          ],
+          "hints": [
+            "motion は「議題」「動議」という意味です。今日のテーマは何でしたか。",
+            "最初の文で speaking against のうしろにあったものです。"
+          ],
+          "confirm_ja": "そうです。this motion は「クラブ活動を任意にすること」を指しています。"
+        }
+      ]
+    },
+    {
+      "id": "S30_PRESENT_SITUATION_1",
+      "section": "Present Situation",
+      "label_ja": "現状①",
+      "focus_sentence": "Currently, most Japanese schools require students to join clubs.",
+      "questions": [
+        {
+          "key": "s30-currently",
+          "ask_ja": "`Currently` は時間を表します。どういう意味ですか？",
+          "accept": [
+            "現在",
+            "現在は",
+            "今",
+            "now",
+            "いま"
+          ],
+          "hints": [
+            "current という語には「今の」という意味があります。",
+            "now と言い換えられます。"
+          ],
+          "confirm_ja": "はい。「現在は」という意味です。"
+        },
+        {
+          "key": "s30-require",
+          "ask_ja": "`require students to join clubs` はどういう意味ですか？",
+          "accept": [
+            "生徒にクラブへの参加を求める",
+            "生徒を部活に入らせる",
+            "生徒は部活に参加しなければならない",
+            "参加を義務づける",
+            "クラブに入ることを求める"
+          ],
+          "hints": [
+            "require は「求める」「必要とする」です。",
+            "`require A to do` の形になっています。A は students、do は join clubs です。"
+          ],
+          "confirm_ja": "そうです。`require A to do` で「Aに〜することを求める」です。"
+        },
+        {
+          "key": "s30-join",
+          "ask_ja": "ここで `join clubs` は「クラブを見る」ですか、「クラブに参加する」ですか？",
+          "accept": [
+            "参加する",
+            "クラブに参加する",
+            "入る",
+            "加入する"
+          ],
+          "hints": [
+            "join は仲間に加わるという意味です。"
+          ],
+          "confirm_ja": "はい、「参加する」です。"
+        }
+      ]
+    },
+    {
+      "id": "S40_PRESENT_SITUATION_2",
+      "section": "Present Situation",
+      "label_ja": "現状②",
+      "focus_sentence": "This system helps students develop teamwork and discipline. However, some students feel stressed by mandatory participation.",
+      "questions": [
+        {
+          "key": "s40-help",
+          "ask_ja": "`helps students develop teamwork and discipline` の `help A do` はどんな意味ですか？",
+          "accept": [
+            "Aが〜するのを助ける",
+            "生徒が身につけるのに役立つ",
+            "〜するのを手伝う",
+            "役立つ"
+          ],
+          "hints": [
+            "help は「助ける」「役立つ」です。",
+            "`help A do` で、A が do するのを助ける、という形です。"
+          ],
+          "confirm_ja": "はい。ここでは「生徒がチームワークと規律を身につけるのに役立つ」です。"
+        },
+        {
+          "key": "s40-teamwork",
+          "ask_ja": "`teamwork` は日本語で？",
+          "accept": [
+            "チームワーク",
+            "協調性",
+            "team work",
+            "協力"
+          ],
+          "hints": [
+            "team と work を合わせた言葉です。"
+          ],
+          "confirm_ja": "はい、チームワーク・協調性ですね。"
+        },
+        {
+          "key": "s40-discipline",
+          "ask_ja": "では `discipline` は、この文ではどんな力でしょう？",
+          "accept": [
+            "規律",
+            "規律性",
+            "自律",
+            "ルールを守る力",
+            "自制心"
+          ],
+          "hints": [
+            "部活で身につく、決まりを守る力のことです。",
+            "「規律」と訳すことが多い語です。"
+          ],
+          "confirm_ja": "そうです。規律、ルールを守る力ですね。"
+        },
+        {
+          "key": "s40-however",
+          "ask_ja": "`However` が来たら、前と同じ方向の話ですか、それとも反対・逆方向ですか？",
+          "accept": [
+            "逆",
+            "反対方向",
+            "反対",
+            "contrast",
+            "逆方向"
+          ],
+          "hints": [
+            "However は文と文をつなぐ言葉です。前の内容とどうつながるでしょうか。",
+            "「しかし」と訳す語です。"
+          ],
+          "confirm_ja": "そうです。前では利点を述べ、その後に問題点へ切り替えています。"
+        },
+        {
+          "key": "s40-mandatory",
+          "ask_ja": "`mandatory participation` はどういう意味ですか？",
+          "accept": [
+            "強制参加",
+            "参加が義務",
+            "必須の参加",
+            "義務的な参加"
+          ],
+          "hints": [
+            "participation は「参加」です。mandatory はその参加がどういうものかを表しています。",
+            "mandatory は「義務的な」「強制の」という意味です。"
+          ],
+          "confirm_ja": "はい。強制参加、参加が義務ということです。"
+        }
+      ]
+    },
+    {
+      "id": "S50_CAUSE",
+      "section": "Cause",
+      "label_ja": "本当の原因",
+      "focus_sentence": "The real problem is not that clubs are required, but that schools offer too few choices. Therefore, we should expand club variety rather than make them optional.",
+      "questions": [
+        {
+          "key": "s50-not-but",
+          "ask_ja": "この文の `not A but B` はどういう意味ですか？",
+          "accept": [
+            "AではなくB",
+            "not A, but B",
+            "AじゃなくてB",
+            "Aではなく、Bだ"
+          ],
+          "hints": [
+            "not と but が対になっています。",
+            "「Aではなく、Bだ」と読みます。"
+          ],
+          "confirm_ja": "はい。`not A but B` で「AではなくB」です。"
+        },
+        {
+          "key": "s50-real-problem",
+          "ask_ja": "では、この立論では「本当の問題」は何だと言っていますか？",
+          "accept": [
+            "クラブが必須なことではなく、選択肢が少ないこと",
+            "選択肢が少ないこと",
+            "学校が十分な種類のクラブを用意していないこと",
+            "選択肢が少ない",
+            "クラブの種類が少ないこと"
+          ],
+          "hints": [
+            "not のうしろではなく、but のうしろに本当の主張があります。",
+            "schools offer too few choices の部分です。"
+          ],
+          "confirm_ja": "はい。これがこの立論の中心的な Cause です。問題は強制そのものではなく、選択肢の少なさだと言っています。"
+        },
+        {
+          "key": "s50-too-few",
+          "ask_ja": "`too few choices` は「選択肢が多すぎる」ですか、「少なすぎる」ですか？",
+          "accept": [
+            "少なすぎる",
+            "少ない",
+            "少なすぎ"
+          ],
+          "hints": [
+            "few は「ほとんどない」という方向の語です。"
+          ],
+          "confirm_ja": "はい、少なすぎるです。数えられる複数名詞には few を使います。"
+        },
+        {
+          "key": "s50-therefore",
+          "ask_ja": "`Therefore` は、日本語なら「しかし」と「したがって」のどちらですか？",
+          "accept": [
+            "したがって",
+            "だから",
+            "そのため",
+            "ゆえに"
+          ],
+          "hints": [
+            "前の文が理由になっていて、そのあとに結論が来ています。"
+          ],
+          "confirm_ja": "はい、「したがって」です。"
+        },
+        {
+          "key": "s50-rather-than",
+          "ask_ja": "`expand club variety rather than make them optional` は、何をするべきだと言っていますか？",
+          "accept": [
+            "任意にするのではなく、クラブの種類を増やす",
+            "選択肢を増やす",
+            "クラブの種類を増やす",
+            "種類を増やす",
+            "クラブを増やす"
+          ],
+          "hints": [
+            "expand は「広げる・増やす」、variety は「種類」です。",
+            "`A rather than B` で「BではなくA」です。A と B に何が入っていますか。"
+          ],
+          "confirm_ja": "そうです。任意にするのではなく、クラブの種類を増やすべきだと言っています。"
+        }
+      ]
+    },
+    {
+      "id": "S60_SERIOUSNESS",
+      "section": "Seriousness",
+      "label_ja": "任意化した場合の悪影響",
+      "focus_sentence": "If clubs become optional, many will close due to lack of members. Students will lose opportunities to develop skills and friendships. Additionally, without clubs, students may spend excessive time on studies, damaging their mental health.",
+      "questions": [
+        {
+          "key": "s60-if",
+          "ask_ja": "`If clubs become optional` は、どんな条件を置いていますか？",
+          "accept": [
+            "もしクラブが任意になったら",
+            "部活が選択制になった場合",
+            "クラブが任意になったら",
+            "任意になったら"
+          ],
+          "hints": [
+            "If は「もし〜なら」です。"
+          ],
+          "confirm_ja": "はい。「もしクラブが任意になったら」という条件です。"
+        },
+        {
+          "key": "s60-will-close",
+          "ask_ja": "その場合、many will close とあります。何が閉鎖すると言っていますか？",
+          "accept": [
+            "多くのクラブ",
+            "many clubs",
+            "クラブ",
+            "部活"
+          ],
+          "hints": [
+            "many のうしろの名詞が省略されています。前の文に出てきたものです。"
+          ],
+          "confirm_ja": "はい、多くのクラブです。"
+        },
+        {
+          "key": "s60-due-to",
+          "ask_ja": "`due to lack of members` は、なぜ閉鎖するという意味ですか？",
+          "accept": [
+            "メンバー不足のため",
+            "部員が足りないから",
+            "人数が足りないため",
+            "部員不足"
+          ],
+          "hints": [
+            "lack は「不足」です。",
+            "`due to + 名詞` で「〜のために」という理由を表します。"
+          ],
+          "confirm_ja": "そうです。`due to + 名詞` で「〜のために」です。"
+        },
+        {
+          "key": "s60-opportunities",
+          "ask_ja": "`opportunities to develop skills and friendships` は、どんな機会ですか？",
+          "accept": [
+            "技能や友情を育てる機会",
+            "スキルや友人関係を発展させる機会",
+            "スキルや友達をつくる機会",
+            "友情を育てる機会"
+          ],
+          "hints": [
+            "opportunity は「機会」です。",
+            "`opportunities to do` で「〜する機会」です。"
+          ],
+          "confirm_ja": "はい。技能や友情を育てる機会です。"
+        },
+        {
+          "key": "s60-additionally",
+          "ask_ja": "`Additionally` は話を追加する言葉です。日本語なら？",
+          "accept": [
+            "さらに",
+            "加えて",
+            "その上",
+            "また"
+          ],
+          "hints": [
+            "add（加える）と同じ語のなかまです。"
+          ],
+          "confirm_ja": "はい、「さらに」「加えて」です。"
+        },
+        {
+          "key": "s60-without",
+          "ask_ja": "`without clubs` はどういう意味ですか？",
+          "accept": [
+            "クラブがなければ",
+            "部活動なしでは",
+            "クラブがないと",
+            "部活がなければ"
+          ],
+          "hints": [
+            "with の反対です。"
+          ],
+          "confirm_ja": "はい、「クラブがなければ」です。"
+        },
+        {
+          "key": "s60-may",
+          "ask_ja": "`students may spend ...` の `may` は、必ずそうなる、ですか、それともそうなる可能性がある、ですか？",
+          "accept": [
+            "可能性がある",
+            "かもしれない",
+            "そうなるかもしれない",
+            "可能性"
+          ],
+          "hints": [
+            "may は断定ではありません。"
+          ],
+          "confirm_ja": "はい。「〜かもしれない」という可能性です。"
+        },
+        {
+          "key": "s60-excessive",
+          "ask_ja": "`excessive time` は「適度な時間」ですか、「過度な時間」ですか？",
+          "accept": [
+            "過度な時間",
+            "多すぎる時間",
+            "過度",
+            "使いすぎ"
+          ],
+          "hints": [
+            "excess は「超過」という意味です。"
+          ],
+          "confirm_ja": "はい、過度な時間です。"
+        },
+        {
+          "key": "s60-damaging",
+          "ask_ja": "最後の `damaging their mental health` は、その結果どうなると言っていますか？",
+          "accept": [
+            "メンタルヘルスを害する",
+            "精神的健康に悪影響が出る",
+            "心の健康を損なう",
+            "メンタルに悪影響"
+          ],
+          "hints": [
+            "damage は「害する・傷つける」です。",
+            "前の内容（勉強に時間を使いすぎること）の結果を表しています。"
+          ],
+          "confirm_ja": "はい。ここでは前の内容の結果・影響を追加して説明しています。"
+        }
+      ]
+    },
+    {
+      "id": "S70_CONCLUSION",
+      "section": "Conclusion",
+      "label_ja": "結論",
+      "focus_sentence": "Making clubs optional will harm students' development. Instead, we should improve the club system. I ask for your opposition to this motion.",
+      "questions": [
+        {
+          "key": "s70-harm",
+          "ask_ja": "`harm students' development` はどういう意味ですか？",
+          "accept": [
+            "生徒の成長を害する",
+            "発達に悪影響を与える",
+            "成長を妨げる",
+            "成長に悪い"
+          ],
+          "hints": [
+            "harm は「害する」です。development は「成長・発達」です。"
+          ],
+          "confirm_ja": "はい。生徒の成長を害するということです。"
+        },
+        {
+          "key": "s70-instead",
+          "ask_ja": "`Instead` は、何をする代わりに何をすべきだと言っていますか？",
+          "accept": [
+            "任意にする代わりに、クラブ制度を改善する",
+            "クラブシステムを改善する",
+            "制度を改善する",
+            "改善する"
+          ],
+          "hints": [
+            "Instead は「その代わりに」です。何の代わりでしょうか。",
+            "improve the club system と言っています。"
+          ],
+          "confirm_ja": "そうです。任意にするのではなく、クラブ制度を改善すべきだという結論です。"
+        },
+        {
+          "key": "s70-ask",
+          "ask_ja": "`I ask for your opposition to this motion.` は、聞き手に何を求めていますか？",
+          "accept": [
+            "この動議に反対してほしい",
+            "反対票を求めている",
+            "反対してほしい",
+            "反対を求めている"
+          ],
+          "hints": [
+            "opposition は opposite と同じなかまの語です。",
+            "最初に出てきた against と同じ方向です。"
+          ],
+          "confirm_ja": "はい。この動議に反対してほしいと求めています。これで立論全体を読み終えました。"
+        }
+      ]
+    },
+    {
+      "id": "S80_LOGIC_CHECK",
+      "section": "Logic Check",
+      "label_ja": "立論構造を理解する",
+      "focus_sentence": "Signpost / Present Situation / Cause / Seriousness / Conclusion",
+      "guidance_ja": [
+        "ここでは英語の細部ではなく、立論の論理構造を確認する。",
+        "英語で答えさせず、日本語で説明させてよい。"
+      ],
+      "questions": [
+        {
+          "key": "s80-present",
+          "ask_ja": "Present Situation では何を説明していましたか？",
+          "accept": [
+            "クラブ参加を求める学校が多い",
+            "チームワークや規律を育てる",
+            "強制参加をストレスに感じる生徒もいる",
+            "現状",
+            "部活が必須になっている"
+          ],
+          "hints": [
+            "3つのことを言っていました。まず今の学校がどうなっているか。",
+            "利点と、問題に感じている生徒がいること、の両方に触れていました。"
+          ],
+          "confirm_ja": "そうです。現状・利点・そして一部の生徒のストレス、の3つでした。"
+        },
+        {
+          "key": "s80-cause",
+          "ask_ja": "Cause では「本当の問題」は何だと言っていましたか？",
+          "accept": [
+            "選択肢が少ないこと",
+            "クラブが必須なことではなく選択肢が少ないこと",
+            "種類が少ないこと"
+          ],
+          "hints": [
+            "not A but B の B のほうです。"
+          ],
+          "confirm_ja": "はい。強制そのものではなく、選択肢の少なさが本当の問題だという主張でした。"
+        },
+        {
+          "key": "s80-solution",
+          "ask_ja": "解決策は何ですか？",
+          "accept": [
+            "クラブの種類を増やす",
+            "club variety を増やす",
+            "選択肢を増やす",
+            "制度を改善する"
+          ],
+          "hints": [
+            "rather than の前にあったほうです。"
+          ],
+          "confirm_ja": "はい。任意にするのではなく、クラブの種類を増やすことです。"
+        },
+        {
+          "key": "s80-seriousness",
+          "ask_ja": "Seriousness では、任意化するとどんな悪影響があると言っていましたか。1つ言ってください。",
+          "accept": [
+            "部員不足でクラブが閉鎖する",
+            "スキルや友情を育てる機会を失う",
+            "勉強に時間を使いすぎてメンタルヘルスに悪影響",
+            "クラブが減る",
+            "友達ができなくなる"
+          ],
+          "hints": [
+            "3つ挙げられていました。まず、部員が減るとクラブはどうなりますか。"
+          ],
+          "confirm_ja": "はい。1つ言えました。"
+        },
+        {
+          "key": "s80-summary",
+          "ask_ja": "では、この立論を日本語で一言でまとめます。「問題はクラブ活動そのものではなく、＿＿＿＿である。だから＿＿＿＿すべきだ」。空欄に何が入りますか？",
+          "accept": [
+            "選択肢が少ないこと",
+            "クラブの種類を増やす",
+            "選択肢が少ないこと／種類を増やす"
+          ],
+          "hints": [
+            "1つ目の空欄は Cause で聞いたところです。",
+            "2つ目の空欄は解決策です。"
+          ],
+          "confirm_ja": "そうです。それがこの立論全体の骨組みです。"
+        }
+      ]
+    },
+    {
+      "id": "S110_ARGUMENT_BUILDING",
+      "section": "Debate",
+      "label_ja": "日本語で論拠を作る",
+      "focus_sentence": "I am against making club activities optional because ...",
+      "guidance_ja": [
+        "ここからディベート学習へ移る。まず日本語で考えさせる。",
+        "「このスピーチを暗記するのではなく、あなた自身の反対理由を作ります。まず日本語で考えましょう」と伝える。",
+        "「クラブ活動を任意にすることに反対するとしたら、理由を1つ言ってください」と聞き、**必ず待つ**。",
+        "教材内の論拠を使ってよい。生徒が別の理由を考えた場合も、学習上妥当なら受け入れる。",
+        "**AI から新しい事実を追加しない。生徒の代わりに理由を考えない。**",
+        "1つ出たら「では、2つ目の理由は？」と聞く。中級なので2〜3個を目標にする。",
+        "行き詰まったら観点だけを示す（部員不足、機会の喪失、選択肢の少なさ）。答えそのものを言わない。",
+        "理由が日本語で出たら record_argument で保存する（side は disagree、ja_text に日本語をそのまま）。",
+        "保存に失敗しても授業は止めない。"
+      ],
+      "questions": []
+    },
+    {
+      "id": "S120_SPEAKING",
+      "section": "Debate",
+      "label_ja": "自分の英語にする",
+      "focus_sentence": "I am against making club activities optional. First, ... Second, ... Therefore, ...",
+      "guidance_ja": [
+        "生徒が作った日本語の理由を、1つずつ英語にしていく。",
+        "支援の順番を守る: 1) まず生徒自身に言わせる 2) キーワードを出す 3) 文頭を示す 4) 文型を示す 5) それでも難しければ模範英文。",
+        "**いきなり模範英文を言わない。**",
+        "教材の表現（If ..., will ... / because / rather than / not A but B）を使えそうなら促す。",
+        "英語になったら record_argument で en_text を追記する（ja_text は上書きしない）。",
+        "2つの理由が英語になったら、「では、今作った2つの理由を最初から続けて言ってみましょう」と促す。",
+        "基本形: I am against making club activities optional. First, ... Second, ... Therefore, ...",
+        "**発話が終わるまで割り込まない。** 言い終わってから1〜2点だけ指摘する。"
+      ],
+      "questions": []
+    },
+    {
+      "id": "S130_MINI_DEBATE",
+      "section": "Debate",
+      "label_ja": "AIとのミニディベート",
+      "focus_sentence": "Some students are very busy or stressed. If club activities are optional, they can choose how to use their time.",
+      "guidance_ja": [
+        "ここでは AI が賛成側（任意化に賛成）を担当する。",
+        "最初の反論は教材の ai_counterarguments を使う。**一度に1論点だけ出す。**",
+        "反論したら「では、あなたの反対側の立場から答えてみてください」と伝えて**待つ**。",
+        "中級なので2往復を目標にする。",
+        "生徒が詰まったら: 1) 「日本語ではどう答えたいですか？」と聞く 2) 日本語を聞く 3) キーワードを出す 4) 生徒自身に英語化させる。",
+        "教材の Cause を使えそうなら「『問題は強制ではなく、選択肢が少ないこと』という考え方が使えそうです」程度のヒントに留める。",
+        "**AI が勝つことを目的にしない。** 生徒が返答できたら受け止める。",
+        "**教材外の統計や新しい事実を持ち出さない。**"
+      ],
+      "questions": []
+    },
+    {
+      "id": "S140_REVIEW_AND_SAVE",
+      "section": "Review",
+      "label_ja": "振り返り",
+      "focus_sentence": "",
+      "guidance_ja": [
+        "最後に長い講評はしない。",
+        "「今日はここまでです」と伝え、できたことを短く挙げる（not A but B / rather than / If ... will ... / 立論の構造 / 自分の理由を英語で言う練習）。",
+        "**点数を言わない。評価はアプリが行う。**",
+        "最後に「今日いちばん難しかったのはどこでしたか？」と1問だけ聞いて、答えを受け止めて終わる。",
+        "終わったら mark_phase_complete を呼ぶ。next_phase は null が返る。"
+      ],
+      "questions": []
     }
   ],
   "_notes": {
-    "take5_scope": "Take5 で有効なのは S00_START と S10_OPENING のみ。S20 以降（Signpost / Present Situation / Cause / Seriousness / Conclusion / ディクテーション / 英作文 / 論拠作成 / ミニディベート）は未実装。",
+    "take5_scope": "S00_START 〜 S80_LOGIC_CHECK と S110〜S140 が有効。S90_DICTATION と S100_WRITING（タイピングが要る2フェーズ）は未実装で、フェーズ一覧にも入れていない。",
     "v03_s10_q1": "v03 §7 の S10 Q1（`speak against ...` の意味）は S00 の確認文に統合した。S00 の正解と内容が重なるため。"
   }
 }

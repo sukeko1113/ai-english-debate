@@ -126,10 +126,15 @@ describe.skipIf(!hasDb)("POST /api/realtime/session", () => {
 
     // 教材が入っている（コードに埋め込まず DB から来る）
     expect(instructions).toContain("speaking against making club activities");
-    // v03 S00 の最初の1問
-    expect(instructions).toContain("`against` は賛成と反対のどちらですか？");
-    // まだ実装していない先のフェーズを混ぜない
-    expect(instructions).not.toContain("Signpost は");
+    // v03 S00 の最初の1問が「いま扱うところ」側にある
+    const currentSection = instructions.slice(
+      instructions.indexOf("## いま扱うところ"),
+    );
+    expect(currentSection).toContain("`against` は賛成と反対のどちらですか？");
+    // 先のフェーズは、いま扱うところより前に置かれている
+    expect(instructions.indexOf("S20_SIGNPOST")).toBeLessThan(
+      instructions.indexOf("## いま扱うところ"),
+    );
     // すぐ答えを言わせない
     expect(instructions).toContain("質問した同じターンで正解を言わない");
 
@@ -188,7 +193,9 @@ describe.skipIf(!hasDb)("POST /api/realtime/session", () => {
     const names = (sent.session.tools as { name: string }[]).map(
       (tool) => tool.name,
     );
-    expect(names).toEqual(["mark_phase_complete"]);
+    // 書く課題（questions）は無いが、論拠を作るフェーズがあるので
+    // record_argument と進行用の tool は渡る
+    expect(names).toEqual(["record_argument", "mark_phase_complete"]);
   });
 
   it("記録する対象がある教材には record_answer だけを渡す", async () => {
@@ -208,8 +215,9 @@ describe.skipIf(!hasDb)("POST /api/realtime/session", () => {
     const names = (sent.session.tools as { name: string }[]).map(
       (tool) => tool.name,
     );
-    // School Uniforms は questions を持つがフェーズが無い
-    expect(names).toEqual(["record_answer"]);
+    // School Uniforms は questions と debate_tasks を持つがフェーズが無い。
+    // 進行用の tool は渡らない
+    expect(names).toEqual(["record_answer", "record_argument"]);
   });
 
   it("生の student_id を OpenAI へ送らない", async () => {

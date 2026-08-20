@@ -225,7 +225,9 @@ OpenAI へ直接渡し、ブラウザが受け取るのは次のフェーズの�
 Club Activities（Take5）は書く課題を持たないため tool は渡らない。
 動作を見るには School Uniforms の教材でセッションを作る。
 
-Take5 で有効な授業フェーズは **S00_START と S10_OPENING のみ**。
+有効な授業フェーズは **S00_START〜S80_LOGIC_CHECK と S110〜S140 の13個**
+（読解 → 論理構造 → 日本語で論拠 → 英語化 → ミニディベート → 振り返り）。
+タイピングが要る **S90_DICTATION と S100_WRITING は未実装**。
 Signpost 以降・ディクテーション・英作文・論拠作成・ミニディベート・採点・教師画面は未実装。
 フェーズを次へ進める function tool も未実装（Task 6）で、いまは
 `lesson_sessions.current_phase` を接続時に保存し、再接続時にそこから組み直す。

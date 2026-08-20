@@ -17,6 +17,7 @@ import type { RealtimeToolsConfig } from "openai/resources/realtime/realtime";
 /** ブラウザから受けた tool 名を API ルートへ対応づける */
 export const TOOL_ROUTES: Readonly<Record<string, string>> = {
   record_answer: "/api/results/answer",
+  record_argument: "/api/results/argument",
   mark_phase_complete: "/api/results/phase",
 };
 
@@ -57,6 +58,37 @@ export const LESSON_TOOLS = [
   },
   {
     type: "function",
+    name: "record_argument",
+    description:
+      "Record a reason the student produced for the debate. " +
+      "Save the Japanese the student actually said, before any translation. " +
+      "Call it again with the same ja_text and an en_text once the student " +
+      "has put that reason into English. Do not invent reasons for the student.",
+    parameters: {
+      type: "object",
+      properties: {
+        side: {
+          type: "string",
+          enum: ["agree", "disagree"],
+          description:
+            "The student position. For this material the student is against " +
+            "making club activities optional, which is 'disagree'.",
+        },
+        ja_text: {
+          type: "string",
+          description: "The reason in Japanese, as the student said it",
+        },
+        en_text: {
+          type: "string",
+          description: "Empty string if not translated yet",
+        },
+      },
+      required: ["side", "ja_text"],
+      additionalProperties: false,
+    },
+  },
+  {
+    type: "function",
     name: "mark_phase_complete",
     description:
       "Call this when the current lesson phase is finished, that is, when the " +
@@ -82,9 +114,11 @@ export const LESSON_TOOLS = [
 export function toolsFor(options: {
   hasQuestions: boolean;
   hasPhases: boolean;
+  hasDebate: boolean;
 }): RealtimeToolsConfig | undefined {
   const names: string[] = [];
   if (options.hasQuestions) names.push("record_answer");
+  if (options.hasDebate) names.push("record_argument");
   if (options.hasPhases) names.push("mark_phase_complete");
   if (names.length === 0) return undefined;
 

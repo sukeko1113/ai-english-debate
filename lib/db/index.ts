@@ -6,6 +6,7 @@
  */
 export * from "./types";
 export { recordAnswer } from "./answers";
+export { getArguments, recordArgument } from "./arguments";
 export { closePool, transaction } from "./client";
 export {
   findMaterialForLevel,

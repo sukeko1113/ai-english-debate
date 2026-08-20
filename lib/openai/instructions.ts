@@ -103,6 +103,7 @@ export function buildInstructions(params: BuildInstructionsParams): string {
     "",
     "本文（この範囲の外へ出ない）:",
     material.script,
+    ...renderUpcoming(upcoming),
     "",
     "## いま扱うところ",
     `セクション: ${phase.section}（${phase.labelJa}）`,
@@ -113,11 +114,21 @@ export function buildInstructions(params: BuildInstructionsParams): string {
     sections.push("", `最初に言うこと: ${phase.openingJa}`);
   }
 
+  if (phase.guidanceJa.length > 0) {
+    sections.push(
+      "",
+      "## このフェーズの進め方",
+      phase.guidanceJa.map((line) => `- ${line}`).join("\n"),
+    );
+  }
+
   sections.push(
     "",
     "## このターンで扱う質問",
     `いま扱うフェーズの id は ${phase.id} です。`,
-    "**下の質問を上から順に1つずつ出します。1つ質問したら必ず止まって回答を待ちます。**",
+    phase.questions.length > 0
+      ? "**下の質問を上から順に1つずつ出します。1つ質問したら必ず止まって回答を待ちます。**"
+      : "このフェーズに決まった質問はありません。上の進め方に沿って、1度に1つだけ問いかけます。",
     "",
     phase.questions.map(renderQuestion).join("\n\n"),
     "",
@@ -137,27 +148,42 @@ export function buildInstructions(params: BuildInstructionsParams): string {
         ].join("\n"),
   );
 
-  if (upcoming.length > 0) {
-    sections.push(
-      "",
-      "## この先のフェーズ",
-      "**アプリが next_phase で名前を告げるまで、ここから先を始めないこと。**",
-      "先に読んで内容を漏らさないこと。生徒に先の質問を予告しないこと。",
-      "",
-      upcoming.map(renderPhase).join("\n\n"),
-    );
-  }
-
   return sections.join("\n");
+}
+
+/**
+ * 先のフェーズをまとめて置く。**現在のフェーズより前に置く。**
+ *
+ * instructions が長くなるほど、末尾に近い指示のほうが効きやすい。
+ * 「いま何を聞くか」と「勝手に先へ進まない」を末尾側に集めるため、
+ * 先の内容はここで先に出しておく
+ * （docs/REALTIME_ARCHITECTURE.md §3「長い prompt は指示の効きが落ちる」への対処）。
+ */
+function renderUpcoming(upcoming: LessonPhase[]): string[] {
+  if (upcoming.length === 0) return [];
+  return [
+    "",
+    "## この先のフェーズ（まだ始めない）",
+    "**アプリが next_phase で名前を告げるまで、ここから先へ進まないこと。**",
+    "先を読んで内容を漏らさないこと。生徒に先の質問を予告しないこと。",
+    "",
+    upcoming.map(renderPhase).join("\n\n"),
+  ];
 }
 
 /** 先のフェーズ。順番が来たら使う */
 function renderPhase(phase: LessonPhase): string {
-  return [
+  const lines = [
     `### フェーズ ${phase.id}（${phase.section} / ${phase.labelJa}）`,
-    `注目する文: ${phase.focusSentence}`,
-    phase.questions.map(renderQuestion).join("\n\n"),
-  ].join("\n");
+  ];
+  if (phase.focusSentence) lines.push(`注目する文: ${phase.focusSentence}`);
+  if (phase.guidanceJa.length > 0) {
+    lines.push(phase.guidanceJa.map((line) => `- ${line}`).join("\n"));
+  }
+  if (phase.questions.length > 0) {
+    lines.push(phase.questions.map(renderQuestion).join("\n\n"));
+  }
+  return lines.join("\n");
 }
 
 /**

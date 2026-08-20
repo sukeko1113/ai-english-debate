@@ -150,6 +150,8 @@ export interface LessonPhase {
   labelJa: string;
   focusSentence: string;
   openingJa: string | null;
+  /** 一問一答にならないフェーズ（論拠作成・ディベートなど）の進め方 */
+  guidanceJa: string[];
   questions: PhaseQuestion[];
 }
 

@@ -128,6 +128,8 @@ async function sessionSetupFor(session: {
   const tools = toolsFor({
     hasQuestions: material.questions.length > 0,
     hasPhases: phases.length > 0,
+    // 論拠を作るフェーズがある教材だけ record_argument を渡す
+    hasDebate: material.debateTasks.length > 0,
   });
 
   const resolved = resolvePhase(phases, session.currentPhase);
