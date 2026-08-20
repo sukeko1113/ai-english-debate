@@ -56,10 +56,32 @@ npm run dev               # http://localhost:3000
 Supabase に接続せず、ローカルの PostgreSQL で開発できる。
 
 ```bash
-service postgresql start          # Claude Code のクラウドセッション内
-createdb aied
-psql aied -f supabase/migrations/0001_init.sql
-psql aied -f supabase/seeds/dev_seed.sql
+npm run db:local        # PostgreSQL 起動 → DB作成 → migration → dev_seed.sql
+npm run seed:content    # content/**.json の教材を投入
+```
+
+`npm run db:local` は何度実行してもよい（適用済み migration は飛ばす）。
+作り直すときは `npm run db:reset`。
+
+その後 `.env` に接続先を書く。
+
+```
+DATABASE_URL=postgres://aied:aied@localhost:5432/aied
+```
+
+中で何をしているか。
+
+| ファイル | 役割 |
+|---|---|
+| `supabase/dev/local_auth_shim.sql` | **ローカル専用。** 素の PostgreSQL に無い `auth.uid()` を作る。Supabase では実行しない |
+| `supabase/migrations/*.sql` | スキーマ。既存ファイルは書き換えず、新しい番号を足す |
+| `supabase/seeds/dev_seed.sql` | ルーブリック v1 と架空のクラス・教師・生徒 |
+| `supabase/seeds/seed_content.ts` | `content/**.json` の教材を投入する |
+
+DB を使うテストは `DATABASE_URL` があるときだけ走る。
+
+```bash
+DATABASE_URL=postgres://aied:aied@localhost:5432/aied npm run test
 ```
 
 ### コマンド
@@ -70,6 +92,8 @@ npm run build       # 本番ビルド
 npm run typecheck   # next typegen + tsc --noEmit
 npm run test        # Vitest（tests/**/*.test.ts）
 npm run lint        # ESLint
+npm run db:local    # ローカルDBの作成・migration・シード
+npm run seed:content # 教材JSONの投入
 ```
 
 コミット前に `npm run typecheck && npm run test` が通ること。
@@ -79,8 +103,8 @@ npm run lint        # ESLint
 
 ### 現在の実装状況
 
-雛形のみ。`docs/BASIC_DESIGN_v03.md` §11 のディレクトリを `.gitkeep` で用意した段階で、
-画面・API・DB アクセス・Realtime 接続はまだ実装していない（`docs/TASKS.md` の Task 2 以降）。
+`docs/TASKS.md` の Task 2 まで。DB スキーマ・教材シード・`lib/db/` が入った段階で、
+画面・API・Realtime 接続はまだ実装していない（Task 3 以降）。
 
 Next 16 固有の作法は `node_modules/next/dist/docs/` を参照する。
 `next dev` が `CLAUDE.md` へ自動追記するのは `next.config.ts` の `agentRules: false` で止めている。
