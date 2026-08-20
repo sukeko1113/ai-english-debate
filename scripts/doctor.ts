@@ -9,6 +9,9 @@
  * **キーの値は絶対に表示しない。** 有無と長さだけを出す。
  */
 
+// .env を読む。**他の import より前に置くこと**
+import "./load_env";
+
 import { closePool, query } from "../lib/db/client";
 import { checkOpenAIAccess } from "../lib/openai/client";
 

@@ -14,6 +14,9 @@ import { readFileSync } from "node:fs";
 import { readdir } from "node:fs/promises";
 import { join, relative } from "node:path";
 
+// .env を読む。**他の import より前に置くこと**
+import "../../scripts/load_env";
+
 import { closePool, transaction, type Transaction } from "../../lib/db/client";
 import { LEVELS, QUESTION_TYPES, type Level, type QuestionType } from "../../lib/db/types";
 

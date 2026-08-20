@@ -14,6 +14,9 @@ import { readFileSync } from "node:fs";
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 
+// .env を読む。**他の import より前に置くこと**
+import "./load_env";
+
 import { closePool, query } from "../lib/db/client";
 
 const SHIM = join("supabase", "dev", "local_auth_shim.sql");
