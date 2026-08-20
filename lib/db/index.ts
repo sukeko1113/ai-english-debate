@@ -7,11 +7,14 @@
 export * from "./types";
 export { closePool, transaction } from "./client";
 export {
+  findMaterialForLevel,
   findMaterialId,
   getLessonMaterial,
+  getMaterialVersions,
   getQuestionsWithAnswers,
   questionBelongsToMaterial,
 } from "./materials";
+export { getStudentByAuthUserId, getStudentById } from "./students";
 export {
   completeStep,
   findOwnedSession,

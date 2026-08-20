@@ -5,6 +5,7 @@ import type {
   GrammarPoint,
   LessonMaterial,
   Level,
+  MaterialVersions,
   PublicQuestion,
   QuestionWithAnswer,
   QuestionType,
@@ -177,6 +178,59 @@ export async function findMaterialId(
     [topicCode, level],
   );
   return row?.id ?? null;
+}
+
+/**
+ * そのレベルで「今日やる教材」を1件返す。
+ *
+ * MVP では割り当てテーブルを持たないため、approved な教材のうち
+ * レベルが一致するものを1件返すだけ（対象は School Uniforms / beginner）。
+ *
+ * TODO(要確認): 教師がテーマ・レベル・期限を割り当てる仕組み
+ * （docs/BASIC_DESIGN_v03.md §9）を作ったら、ここを割り当ての参照に差し替える。
+ * その時点で「今日」の判定もこの関数の責任になる。
+ */
+export async function findMaterialForLevel(
+  level: Level,
+): Promise<string | null> {
+  const row = await queryOne<{ id: string }>(
+    `select m.id
+       from materials m
+       join topics t on t.id = m.topic_id
+      where m.level = $1
+        and m.status = 'approved'
+        and t.status = 'approved'
+      order by t.code, m.version desc
+      limit 1`,
+    [level],
+  );
+  return row?.id ?? null;
+}
+
+/**
+ * 授業開始時に固定する版を引く。
+ * 教材が存在しなければ null（呼び出し側は 404 を返す）。
+ */
+export async function getMaterialVersions(
+  materialId: string,
+): Promise<MaterialVersions | null> {
+  const row = await queryOne<{
+    id: string;
+    level: Level;
+    rubric_version: string;
+    prompt_version: string;
+  }>(
+    `select id, level, rubric_version, prompt_version
+       from materials where id = $1`,
+    [materialId],
+  );
+  if (!row) return null;
+  return {
+    materialId: row.id,
+    level: row.level,
+    rubricVersion: row.rubric_version,
+    promptVersion: row.prompt_version,
+  };
 }
 
 /**

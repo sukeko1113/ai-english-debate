@@ -47,6 +47,13 @@ export function toArgumentSide(side: DebateSide): ArgumentSide {
   return side === "for" ? "agree" : "disagree";
 }
 
+export interface Student {
+  id: string;
+  classId: string | null;
+  displayName: string;
+  currentLevel: Level;
+}
+
 export interface Topic {
   id: string;
   code: string;
@@ -115,6 +122,14 @@ export interface LessonMaterial {
   questions: PublicQuestion[];
   debateTasks: DebateTask[];
   counterarguments: Counterargument[];
+}
+
+/** 授業開始時に lesson_sessions へ固定する版（docs/RUBRIC.md） */
+export interface MaterialVersions {
+  materialId: string;
+  level: Level;
+  rubricVersion: string;
+  promptVersion: string;
 }
 
 export interface LessonSession {

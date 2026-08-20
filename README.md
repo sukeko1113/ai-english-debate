@@ -103,8 +103,14 @@ npm run seed:content # 教材JSONの投入
 
 ### 現在の実装状況
 
-`docs/TASKS.md` の Task 2 まで。DB スキーマ・教材シード・`lib/db/` が入った段階で、
-画面・API・Realtime 接続はまだ実装していない（Task 3 以降）。
+`docs/TASKS.md` の Task 3 まで。
+
+- `GET /api/lessons/today` / `POST /api/lesson-sessions`
+- 生徒画面 `/student` と授業画面 `/student/lesson/[materialId]`（4領域）
+
+**音声はまだ接続していない**（Task 4）。答案の記録も未実装（Task 6）。
+認証は `lib/auth/student.ts` の仮実装で、開発用の固定生徒を返す。
+本番ビルドでは例外を投げるようにしてある。
 
 Next 16 固有の作法は `node_modules/next/dist/docs/` を参照する。
 `next dev` が `CLAUDE.md` へ自動追記するのは `next.config.ts` の `agentRules: false` で止めている。

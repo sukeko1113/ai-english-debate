@@ -10,5 +10,8 @@ export default defineConfig({
     // そのファイルだけ環境を上書きする。
     environment: "node",
     include: ["tests/**/*.test.ts"],
+    // DB を使うテストは同じ架空の生徒・教材を共有するので、
+    // ファイルを並列に走らせると互いの行を消し合う。順番に走らせる。
+    fileParallelism: false,
   },
 });
