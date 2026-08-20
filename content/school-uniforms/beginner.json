@@ -1,0 +1,131 @@
+{
+  "topic": {
+    "code": "school-uniforms",
+    "title_en": "School Uniforms",
+    "title_ja": "学校の制服",
+    "category": "school_life",
+    "status": "approved"
+  },
+  "material": {
+    "level": "beginner",
+    "version": "1.0.0",
+    "objectives": [
+      "because を使って理由を言える",
+      "独立した理由を2つ述べられる",
+      "I think ... の形で自分の意見を言える"
+    ],
+    "script": "School uniforms are common in many schools. Some students like them because they are easy to choose in the morning. Other students do not like them because they cannot wear their favorite clothes. Uniforms can also be expensive for families. What do you think about school uniforms?",
+    "script_ja_note": "本文は約60語。初級では1文ずつゆっくり読む。"
+  },
+  "vocabulary": [
+    { "word": "uniform",     "meaning": "制服",       "example": "Our school uniform is blue." },
+    { "word": "choose",      "meaning": "選ぶ",       "example": "I choose my clothes every morning." },
+    { "word": "same",        "meaning": "同じ",       "example": "We all wear the same uniform." },
+    { "word": "expensive",   "meaning": "高い（値段）", "example": "This bag is expensive." },
+    { "word": "comfortable", "meaning": "快適な",     "example": "These shoes are comfortable." }
+  ],
+  "grammar_points": [
+    {
+      "point": "because",
+      "explanation": "理由を言うときに使う。「〜だから」。文の後半につける。",
+      "examples": [
+        "I like uniforms because they are easy.",
+        "I don't like uniforms because they are expensive."
+      ]
+    },
+    {
+      "point": "I think ...",
+      "explanation": "自分の意見を言うときの決まり文句。文の最初に置く。",
+      "examples": [
+        "I think school uniforms are good.",
+        "I think students should choose their clothes."
+      ]
+    },
+    {
+      "point": "should",
+      "explanation": "「〜すべきだ」。提案や意見に使う。",
+      "examples": [
+        "Schools should have uniforms.",
+        "Students should wear what they like."
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "key": "dict-1",
+      "type": "dictation",
+      "prompt": "Listen and write the sentence.",
+      "answer": "Some students like uniforms because they are easy to wear.",
+      "max_score": 1
+    },
+    {
+      "key": "dict-2",
+      "type": "dictation",
+      "prompt": "Listen and write the sentence.",
+      "answer": "Uniforms can be expensive for families.",
+      "max_score": 1
+    },
+    {
+      "key": "dict-3",
+      "type": "dictation",
+      "prompt": "Listen and write the sentence.",
+      "answer": "I think students should wear a uniform.",
+      "max_score": 1
+    },
+    {
+      "key": "comp-1",
+      "type": "comprehension",
+      "prompt": "Why do some students like uniforms?",
+      "answer": "Because they are easy to choose in the morning.",
+      "max_score": 1
+    },
+    {
+      "key": "comp-2",
+      "type": "comprehension",
+      "prompt": "Why do some students not like uniforms?",
+      "answer": "Because they cannot wear their favorite clothes.",
+      "max_score": 1
+    },
+    {
+      "key": "comp-3",
+      "type": "comprehension",
+      "prompt": "What is one problem with uniforms for families?",
+      "answer": "They can be expensive.",
+      "max_score": 1
+    },
+    {
+      "key": "write-1",
+      "type": "writing",
+      "prompt": "次の日本語を英語にしてください。「制服は朝、服を選ばなくてよいので便利です。」",
+      "answer": "Uniforms are useful because we do not need to choose clothes in the morning.",
+      "answer_note": "唯一の正解ではない。because が使えており、意味が通れば可。",
+      "max_score": 3
+    }
+  ],
+  "debate_tasks": [
+    {
+      "side": "for",
+      "prompt": "You think school uniforms are good. Give two reasons.",
+      "constraints": { "min_reasons": 2, "language": "en", "turns": 1 },
+      "hint_topics_ja": ["朝の準備が楽", "服装で差が出にくい", "学校の一員だと感じる"]
+    },
+    {
+      "side": "against",
+      "prompt": "You think students should choose their own clothes. Give two reasons.",
+      "constraints": { "min_reasons": 2, "language": "en", "turns": 1 },
+      "hint_topics_ja": ["自分らしさを出せる", "値段が高い", "暑い日・寒い日に合わない"]
+    }
+  ],
+  "ai_counterarguments": [
+    { "against_side": "for",     "text": "But uniforms can be expensive. Is that fair for every family?" },
+    { "against_side": "for",     "text": "But everyone looks the same. Is that a good thing?" },
+    { "against_side": "against", "text": "But choosing clothes every morning takes time. Isn't that difficult?" },
+    { "against_side": "against", "text": "But some students may worry about their clothes. Isn't a uniform easier?" }
+  ],
+  "model_answers": {
+    "ja_reasons": ["朝、服を選ばなくてよいので楽", "服装で差がつきにくい"],
+    "en_argument": "I think school uniforms are good because students do not need to choose clothes every morning. Also, everyone wears the same clothes, so it is fair."
+  },
+  "rubric_version": "v1",
+  "prompt_version": "v1"
+}
