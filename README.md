@@ -84,6 +84,61 @@ DB を使うテストは `DATABASE_URL` があるときだけ走る。
 DATABASE_URL=postgres://aied:aied@localhost:5432/aied npm run test
 ```
 
+### 別の PC で動かす
+
+デプロイはせず、その PC で `npm run dev` を動かす前提。**認証は仮実装のままなので、
+公開せずローカルでのみ使うこと**（`NODE_ENV=production` では例外を投げる）。
+
+**1. Node.js 20.9 以上と PostgreSQL 16 を入れる**
+
+| OS | PostgreSQL の用意 |
+|---|---|
+| macOS | `brew install postgresql@16 && brew services start postgresql@16` |
+| Windows | 公式インストーラを入れる（インストール時のパスワードを控える） |
+| Linux | `npm run db:local` が起動から DB 作成まで行う |
+
+**2. リポジトリを用意して DB を作る**
+
+```bash
+git clone <このリポジトリ> && cd ai-english-debate
+npm install
+createdb aied                    # Windows は pgAdmin か psql から作成
+```
+
+**3. `.env` を書く**
+
+```
+OPENAI_API_KEY=sk-...
+OPENAI_REALTIME_MODEL=gpt-realtime-2.1
+SAFETY_ID_SALT=（openssl rand -hex 32 の出力）
+DATABASE_URL=postgres://ユーザー:パスワード@localhost:5432/aied
+```
+
+**4. スキーマと教材を入れる**
+
+```bash
+npm run db:apply       # OS を問わない。shim → migration → dev_seed
+npm run seed:content   # 教材 JSON の投入
+```
+
+**5. 事前確認**
+
+```bash
+npm run doctor
+```
+
+環境・DB・教材・API キーを順に確認し、足りないものと直し方を出す。
+**キーが正しいかどうかも、音声接続を試す前にここで分かる。**
+すべて緑になってから `npm run dev` を実行する。
+
+### API キーを他人の PC に置くときの注意
+
+`.env` を置くと、**その PC を使える人はキーを読める。**
+
+- **この用途専用のキーを発行し、終わったら失効させる**
+- OpenAI Platform で月額のハードリミットを入れる（`docs/SECURITY.md` §1）
+- アプリ側のレート制限（`REALTIME_SESSIONS_PER_HOUR`、既定6）だけに頼らない
+
 ### コマンド
 
 ```bash
@@ -92,7 +147,9 @@ npm run build       # 本番ビルド
 npm run typecheck   # next typegen + tsc --noEmit
 npm run test        # Vitest（tests/**/*.test.ts）
 npm run lint        # ESLint
-npm run db:local    # ローカルDBの作成・migration・シード
+npm run doctor      # 事前確認（環境・DB・教材・APIキー）
+npm run db:local    # ローカルDBの作成・migration・シード（Linux 専用）
+npm run db:apply    # migration とシードの適用のみ（OS 非依存）
 npm run seed:content # 教材JSONの投入
 ```
 

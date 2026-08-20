@@ -13,7 +13,9 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
+    "doctor": "tsx scripts/doctor.ts",
     "db:local": "bash scripts/local_db.sh",
+    "db:apply": "tsx scripts/db_apply.ts",
     "db:reset": "bash scripts/local_db.sh --reset",
     "seed:content": "tsx supabase/seeds/seed_content.ts"
   },

@@ -20,6 +20,8 @@ import type { RealtimeSessionCreateRequest } from "openai/resources/realtime/rea
 
 const REALTIME_CALLS_URL = "https://api.openai.com/v1/realtime/calls";
 const RESPONSES_URL = "https://api.openai.com/v1/responses";
+/** 事前確認（npm run doctor）でキーの疎通を見るだけに使う */
+const MODELS_URL = "https://api.openai.com/v1/models";
 
 /** OpenAI 側の失敗。**本文をそのままクライアントへ返さないこと** */
 export class OpenAIRequestError extends Error {
@@ -138,6 +140,101 @@ function extractOutputText(payload: unknown): string | null {
     }
   }
   return null;
+}
+
+/**
+ * 事前確認用。キーが通るか、指定したモデルが使えるかを確かめる。
+ *
+ * npm run doctor から呼ぶ。**キーの値そのものは返さない。**
+ * 「到達できない」と「キーが誤り」を呼び出し側が区別できるように、
+ * 結果を種類で返す（当日の切り分けを短くするため）。
+ */
+export type OpenAIAccessResult =
+  | { kind: "ok"; realtimeModels: string[]; hasConfiguredModel: boolean }
+  | { kind: "no-key" }
+  | { kind: "unauthorized" }
+  | { kind: "unreachable"; detail: string }
+  | { kind: "error"; status: number };
+
+/** OpenAI のエラー応答は { "error": { ... } } の JSON */
+function looksLikeOpenAIError(body: string): boolean {
+  try {
+    const parsed: unknown = JSON.parse(body);
+    return (
+      typeof parsed === "object" &&
+      parsed !== null &&
+      "error" in parsed &&
+      typeof (parsed as { error: unknown }).error === "object"
+    );
+  } catch {
+    return false;
+  }
+}
+
+export async function checkOpenAIAccess(
+  fetchImpl: typeof fetch = fetch,
+): Promise<OpenAIAccessResult> {
+  let apiKey: string;
+  try {
+    apiKey = getApiKey();
+  } catch {
+    return { kind: "no-key" };
+  }
+
+  let response: Response;
+  try {
+    response = await fetchImpl(MODELS_URL, {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
+  } catch (error) {
+    // ネットワーク・プロキシ・DNS など。キーの正誤は判定できない
+    return {
+      kind: "unreachable",
+      detail: error instanceof Error ? error.message : String(error),
+    };
+  }
+
+  if (!response.ok) {
+    // 間に立つプロキシやファイアウォールも 401/403 を返すことがある。
+    // OpenAI が返した JSON エラーかどうかで、
+    // 「キーが誤り」と「そもそも届いていない」を区別する。
+    // これを混同すると、ネットワークの問題をキーの問題として調べ始めてしまう
+    const body = await response.text().catch(() => "");
+    if (!looksLikeOpenAIError(body)) {
+      return {
+        kind: "unreachable",
+        detail: `HTTP ${response.status}: ${body.slice(0, 120).trim() || "応答が空"}`,
+      };
+    }
+    if (response.status === 401 || response.status === 403) {
+      return { kind: "unauthorized" };
+    }
+    return { kind: "error", status: response.status };
+  }
+
+  const payload: unknown = await response.json().catch(() => null);
+  const data =
+    typeof payload === "object" && payload !== null && "data" in payload
+      ? (payload as { data: unknown }).data
+      : null;
+
+  const ids = Array.isArray(data)
+    ? data
+        .map((entry) =>
+          typeof entry === "object" && entry !== null && "id" in entry
+            ? String((entry as { id: unknown }).id)
+            : "",
+        )
+        .filter((id) => id.length > 0)
+    : [];
+
+  const configured = process.env.OPENAI_REALTIME_MODEL ?? "";
+
+  return {
+    kind: "ok",
+    realtimeModels: ids.filter((id) => id.includes("realtime")).sort(),
+    hasConfiguredModel: configured.length > 0 && ids.includes(configured),
+  };
 }
 
 export interface RealtimeCallParams {

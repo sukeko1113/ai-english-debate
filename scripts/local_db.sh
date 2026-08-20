@@ -1,7 +1,11 @@
 #!/bin/bash
-# ローカル PostgreSQL に DB を作り、migration とシードを流す。
+# ローカル PostgreSQL を起動し、ロールと DB を作ってから db:apply を呼ぶ。
 #
 #   bash scripts/local_db.sh
+#
+# **このスクリプトは Linux 専用**（service / su postgres を使う）。
+# macOS / Windows では PostgreSQL と DB を各 OS の手順で用意してから
+# npm run db:apply を直接実行すること（README「別の PC で動かす」参照）。
 #
 # Claude Code のクラウドセッション / ローカルの開発用。Supabase には使わない。
 # 何度実行してもよい（--reset で作り直す）。
@@ -51,31 +55,11 @@ if ! su postgres -c "psql -tAc \"select 1 from pg_database where datname='${DB_N
 fi
 
 export PGPASSWORD="$DB_PASS"
-PSQL="psql -q -v ON_ERROR_STOP=1 -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d ${DB_NAME}"
+export DATABASE_URL="postgres://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
 
-echo "auth シムを流す（ローカル専用）"
-$PSQL -f supabase/dev/local_auth_shim.sql
-
-# 適用済み migration を記録して、2回目以降は飛ばす。
-# 本番は Supabase 側の migration 管理を使うので、この表はローカル専用。
-$PSQL -c "create table if not exists schema_migrations (
-            filename   text primary key,
-            applied_at timestamptz not null default now());"
-
-for migration in supabase/migrations/*.sql; do
-  name="$(basename "$migration")"
-  applied="$($PSQL -tAc "select 1 from schema_migrations where filename = '${name}'")"
-  if [ "$applied" = "1" ]; then
-    echo "migration: $name (適用済み・スキップ)"
-    continue
-  fi
-  echo "migration: $name"
-  $PSQL -f "$migration"
-  $PSQL -c "insert into schema_migrations (filename) values ('${name}');"
-done
-
-echo "seed: supabase/seeds/dev_seed.sql"
-$PSQL -f supabase/seeds/dev_seed.sql
+# shim・migration・シードの適用は OS 非依存の db:apply に任せる。
+# ここでしかできないのは、上の「PostgreSQL の起動・ロール作成・DB 作成」だけ
+npm run --silent db:apply
 
 echo
 echo "DATABASE_URL=postgres://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
