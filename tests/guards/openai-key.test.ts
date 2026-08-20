@@ -13,6 +13,12 @@ import { describe, expect, it } from "vitest";
 
 const REPO_ROOT = process.cwd();
 const ALLOWED_KEY_READER = join("lib", "openai", "client.ts");
+
+/**
+ * テストは lib/openai/client.ts を動かすために OPENAI_API_KEY を設定してよい。
+ * 出荷されるコード（app / components / lib / scripts / supabase）が対象。
+ */
+const ALLOWED_PREFIXES = [`tests${sep}`];
 const SKIP_DIRS = new Set([
   ".git",
   ".next",
@@ -58,7 +64,10 @@ describe("OPENAI_API_KEY の取り扱い", () => {
 
   it("lib/openai/client.ts 以外から OPENAI_API_KEY を読んでいない", () => {
     const violations = sourceFiles.filter((rel) => {
-      if (rel.split(sep).join(sep) === ALLOWED_KEY_READER) return false;
+      if (rel === ALLOWED_KEY_READER) return false;
+      if (ALLOWED_PREFIXES.some((prefix) => rel.startsWith(prefix))) {
+        return false;
+      }
       return readFileSync(join(REPO_ROOT, rel), "utf8").includes(API_KEY_NEEDLE);
     });
 

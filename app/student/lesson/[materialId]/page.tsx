@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 
-import { LessonControls } from "@/components/lesson/LessonControls";
 import { MaterialPane } from "@/components/lesson/MaterialPane";
 import { StepPanel } from "@/components/lesson/StepPanel";
 import { TranscriptPane } from "@/components/lesson/TranscriptPane";
+import { VoiceControls } from "@/components/voice/VoiceControls";
 import { requireStudent } from "@/lib/auth/student";
 import { getLessonMaterial } from "@/lib/db/materials";
 import { findUnfinishedSession } from "@/lib/db/sessions";
@@ -53,7 +53,7 @@ export default async function LessonPage({
         <StepPanel currentStep={currentStep} questions={material.questions} />
       </div>
 
-      <LessonControls />
+      <VoiceControls lessonSessionId={session?.id ?? null} />
     </div>
   );
 }

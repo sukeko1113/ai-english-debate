@@ -14,6 +14,7 @@ export {
   getQuestionsWithAnswers,
   questionBelongsToMaterial,
 } from "./materials";
+export { countRecentCalls, recordRealtimeCall } from "./realtime";
 export { getStudentByAuthUserId, getStudentById } from "./students";
 export {
   completeStep,

@@ -103,14 +103,42 @@ npm run seed:content # 教材JSONの投入
 
 ### 現在の実装状況
 
-`docs/TASKS.md` の Task 3 まで。
+`docs/TASKS.md` の Task 4 まで。
 
 - `GET /api/lessons/today` / `POST /api/lesson-sessions`
 - 生徒画面 `/student` と授業画面 `/student/lesson/[materialId]`（4領域）
+- `POST /api/realtime/session`（WebRTC の SDP 中継）と授業画面の「開始」「停止」
 
-**音声はまだ接続していない**（Task 4）。答案の記録も未実装（Task 6）。
+教材注入は未実装で、instructions は固定文字列（Task 5）。
+答案の記録も未実装（Task 6）。
 認証は `lib/auth/student.ts` の仮実装で、開発用の固定生徒を返す。
 本番ビルドでは例外を投げるようにしてある。
+
+### 音声接続をローカルで試す
+
+**クラウドセッションでは試せない。** `OPENAI_API_KEY` をクラウド環境変数に
+置かない方針のため（`docs/SECURITY.md` §1）。手元で次を行う。
+
+```bash
+cp .env.example .env
+#   OPENAI_API_KEY         サーバー専用のキー
+#   OPENAI_REALTIME_MODEL  Realtime のモデル名（コードに直書きしない）
+#   SAFETY_ID_SALT         Safety Identifier のハッシュ用ソルト
+#   DATABASE_URL           npm run db:local が最後に表示する値
+
+npm run dev
+# /student →「AI授業を開始」→ 授業画面の下部「開始」→ マイクを許可
+```
+
+確かめること（`docs/TASKS.md` Task 4）:
+
+- 話しかけて返事が返るか
+- **barge-in**（AI が話している最中に割り込めるか）
+- **turn detection** の感触。待ってくれない / 喋り出さない場合は
+  `lib/openai/session-config.ts` の `TURN_DETECTION` を調整する
+
+接続1回につき `realtime_calls` に1行入る。1時間あたりの上限は
+`REALTIME_SESSIONS_PER_HOUR`（既定 6）。超えると 429 になる。
 
 Next 16 固有の作法は `node_modules/next/dist/docs/` を参照する。
 `next dev` が `CLAUDE.md` へ自動追記するのは `next.config.ts` の `agentRules: false` で止めている。
