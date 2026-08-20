@@ -207,6 +207,7 @@ export async function getLessonMaterial(
         id: phase.id,
         section: phase.section,
         labelJa: phase.labelJa,
+        focusSentence: phase.focusSentence,
       }),
     ),
   };

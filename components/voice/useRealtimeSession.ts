@@ -41,6 +41,8 @@ export interface UseRealtimeSession {
   error: string | null;
   /** 中央ペインに出す会話履歴 */
   transcript: TranscriptEntry[];
+  /** 教材のどこを扱っているか。フェーズが進むと変わる */
+  currentPhaseId: string | null;
   /** 授業画面が <audio> に渡す。AI の声はここから鳴る */
   audioRef: React.RefObject<HTMLAudioElement | null>;
   start: () => Promise<void>;
@@ -89,12 +91,18 @@ export function useRealtimeSession(
   lessonSessionId: string | null,
   /** 再読み込み・再接続でも消えないよう、保存済みの履歴から始める */
   initialTranscript: readonly TranscriptEntry[] = [],
+  /** アプリ側が持っている現在フェーズ（lesson_sessions.current_phase） */
+  initialPhaseId: string | null = null,
 ): UseRealtimeSession {
   const [status, setStatus] = useState<VoiceStatus>("idle");
   const [error, setError] = useState<string | null>(null);
   const [transcript, setTranscript] = useState<TranscriptEntry[]>([
     ...initialTranscript,
   ]);
+  // 教材のどこを扱っているかの表示に使う。進めてよいかを決めるのはサーバー
+  const [currentPhaseId, setCurrentPhaseId] = useState<string | null>(
+    initialPhaseId,
+  );
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
@@ -229,6 +237,11 @@ export function useRealtimeSession(
             send: (payload) => {
               if (channel.readyState === "open") channel.send(payload);
             },
+          }).then((output) => {
+            // フェーズが進んだら教材のハイライト位置も動かす
+            if (typeof output.next_phase === "string") {
+              setCurrentPhaseId(output.next_phase);
+            }
           });
         }
       });
@@ -268,5 +281,5 @@ export function useRealtimeSession(
     }
   }, [lessonSessionId, release]);
 
-  return { status, error, transcript, audioRef, start, stop };
+  return { status, error, transcript, currentPhaseId, audioRef, start, stop };
 }

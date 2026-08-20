@@ -1,7 +1,5 @@
 import { notFound } from "next/navigation";
 
-import { MaterialPane } from "@/components/lesson/MaterialPane";
-import { StepPanel } from "@/components/lesson/StepPanel";
 import { VoiceSession } from "@/components/voice/VoiceSession";
 import { requireStudent } from "@/lib/auth/student";
 import { getLessonMaterial } from "@/lib/db/materials";
@@ -52,20 +50,13 @@ export default async function LessonPage({
 
       <VoiceSession
         lessonSessionId={session?.id ?? null}
-        topicTitle={material.topic.titleJa}
         initialTranscript={transcript.map((line) => ({
           speaker: line.speaker,
           text: line.text,
         }))}
-        left={<MaterialPane material={material} />}
-        right={
-          <StepPanel
-            currentStep={currentStep}
-            currentPhaseId={session?.currentPhase ?? null}
-            phases={material.phases}
-            questions={material.questions}
-          />
-        }
+        material={material}
+        currentStep={currentStep}
+        initialPhaseId={session?.currentPhase ?? null}
       />
     </div>
   );

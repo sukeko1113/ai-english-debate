@@ -20,16 +20,37 @@ import type { RealtimeSessionCreateRequest } from "openai/resources/realtime/rea
  * TODO(要確認): 環境変数で切り替えられるようにするか。今は .env.example に
  * 変数を増やさない方針にしているため、この定数を直す運用にしている。
  */
-export const TURN_DETECTION = {
-  type: "semantic_vad",
-  eagerness: "low",
-  create_response: true,
-  interrupt_response: true,
-} as const satisfies NonNullable<
+/**
+ * 生徒が話し終わったと判断するまでの積極さ。
+ *
+ * `low` にすると待ちが長く、実際に授業を受けると「反応が遅い」と感じる。
+ * 逆に速すぎる場合は生徒が「少し待って」と言えば止められるので、
+ * **既定は速い側（high）にする。**
+ *
+ * docs/REALTIME_ARCHITECTURE.md §9 のとおり定数直書きにせず、
+ * 実機で調整できるよう環境変数から読む（REALTIME_VAD_EAGERNESS）。
+ */
+const EAGERNESS_VALUES = ["low", "medium", "high", "auto"] as const;
+type Eagerness = (typeof EAGERNESS_VALUES)[number];
+
+function eagernessFromEnv(): Eagerness {
+  const configured = process.env.REALTIME_VAD_EAGERNESS;
+  const found = EAGERNESS_VALUES.find((value) => value === configured);
+  return found ?? "high";
+}
+
+export function turnDetection(): NonNullable<
   NonNullable<
     NonNullable<RealtimeSessionCreateRequest["audio"]>["input"]
   >["turn_detection"]
->;
+> {
+  return {
+    type: "semantic_vad",
+    eagerness: eagernessFromEnv(),
+    create_response: true,
+    interrupt_response: true,
+  };
+}
 
 /**
  * Task 4 の固定 instructions。
@@ -66,7 +87,7 @@ export function buildRealtimeSession(
         // language を固定しない。v03 の授業は説明も回答も日本語で、
         // 英文だけが英語になる。"en" に固定すると日本語の回答が壊れる
         transcription: { model: "gpt-4o-mini-transcribe" },
-        turn_detection: TURN_DETECTION,
+        turn_detection: turnDetection(),
       },
     },
     // 点数を扱う tool は作らない（CLAUDE.md 禁止事項2）。

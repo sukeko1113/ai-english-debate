@@ -69,10 +69,20 @@ describe.skipIf(!hasDb)("GET /api/lessons/today", () => {
     const response = await GET();
     const body = await response.json();
 
-    // 進行の目安は出すが、中身（正解）は出さない
+    // 進行の目安と「いま読んでいる文」は出すが、中身（正解）は出さない
     expect(body.phases.length).toBeGreaterThan(0);
     for (const phase of body.phases) {
-      expect(Object.keys(phase).sort()).toEqual(["id", "labelJa", "section"]);
+      expect(Object.keys(phase).sort()).toEqual([
+        "focusSentence",
+        "id",
+        "labelJa",
+        "section",
+      ]);
+
+      // focusSentence は画面のハイライト用。本文の一文か、
+      // S80_LOGIC_CHECK のようにセクション名を並べた見出しになる。
+      // どちらにしても**正解は含めない**
+      expect(phase.focusSentence).not.toContain(ACCEPTED_ANSWER);
     }
   });
 

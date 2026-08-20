@@ -160,6 +160,12 @@ export interface PublicPhase {
   id: string;
   section: string;
   labelJa: string;
+  /**
+   * いま読んでいる文。本文の一部なので生徒に見せてよい。
+   * 画面で本文のどこを扱っているかを示すために使う。
+   * **accept や hints（正解）は含めない。**
+   */
+  focusSentence: string;
 }
 
 /** 授業開始時に lesson_sessions へ固定する版（docs/RUBRIC.md） */
