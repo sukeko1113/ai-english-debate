@@ -5,6 +5,7 @@
  * 外からは常にこのモジュール経由で使う。
  */
 export * from "./types";
+export { recordAnswer } from "./answers";
 export { closePool, transaction } from "./client";
 export {
   findMaterialForLevel,

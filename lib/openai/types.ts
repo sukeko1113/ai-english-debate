@@ -50,6 +50,19 @@ export type KnownRealtimeServerEvent =
   | OutputAudioTranscriptDoneEvent
   | RealtimeErrorEvent;
 
+/** function call のイベントかどうか。形が合わなければ false */
+export function isFunctionCallDone(
+  event: RealtimeServerEventBase,
+): event is FunctionCallArgumentsDoneEvent {
+  if (event.type !== "response.function_call_arguments.done") return false;
+  const candidate = event as Partial<FunctionCallArgumentsDoneEvent>;
+  return (
+    typeof candidate.call_id === "string" &&
+    typeof candidate.name === "string" &&
+    typeof candidate.arguments === "string"
+  );
+}
+
 /**
  * データチャネルの文字列をイベントとして読む。
  * 形が合わなければ null。**壊れた入力で落ちないこと。**

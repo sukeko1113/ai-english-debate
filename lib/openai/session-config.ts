@@ -43,6 +43,11 @@ export const PLACEHOLDER_INSTRUCTIONS =
 export interface BuildSessionParams {
   model: string;
   instructions?: string;
+  /**
+   * 記録専用の tool（lib/openai/tools.ts）。
+   * 使う場面が無いセッションには渡さない。渡せばモデルが呼べてしまうため。
+   */
+  tools?: RealtimeSessionCreateRequest["tools"];
 }
 
 /** WebRTC の SDP と一緒に送るセッション設定を作る */
@@ -65,6 +70,7 @@ export function buildRealtimeSession(
       },
     },
     // 点数を扱う tool は作らない（CLAUDE.md 禁止事項2）。
-    // 記録専用の tool は Task 6 で lib/openai/tools.ts に追加する
+    // 渡すのは記録専用の tool だけ（lib/openai/tools.ts）
+    ...(params.tools ? { tools: params.tools } : {}),
   };
 }

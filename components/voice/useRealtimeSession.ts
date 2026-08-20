@@ -2,7 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { REALTIME_DATA_CHANNEL, parseRealtimeEvent } from "@/lib/openai/types";
+import { dispatchFunctionCall } from "@/lib/openai/function-calls";
+import {
+  REALTIME_DATA_CHANNEL,
+  isFunctionCallDone,
+  parseRealtimeEvent,
+} from "@/lib/openai/types";
 
 /**
  * WebRTC で Realtime API と音声を往復させる。
@@ -146,12 +151,26 @@ export function useRealtimeSession(
         pc.addTrack(track, mic);
       }
 
-      // tool 呼び出しと書き起こしがここを通る。処理は Task 6 以降
+      // tool 呼び出しと書き起こしがここを通る。書き起こしの保存は Task 7
       const channel = pc.createDataChannel(REALTIME_DATA_CHANNEL);
       channel.addEventListener("message", (event: MessageEvent<string>) => {
         const parsed = parseRealtimeEvent(event.data);
-        if (parsed?.type === "error") {
+        if (!parsed) return;
+
+        if (parsed.type === "error") {
           console.error("[realtime] イベントエラー", parsed);
+          return;
+        }
+
+        if (isFunctionCallDone(parsed)) {
+          // 記録専用。サーバーが所有者と item_id を検証する
+          void dispatchFunctionCall({
+            event: parsed,
+            lessonSessionId,
+            send: (payload) => {
+              if (channel.readyState === "open") channel.send(payload);
+            },
+          });
         }
       });
 

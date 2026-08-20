@@ -1,7 +1,7 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { closePool, query } from "@/lib/db/client";
-import { findMaterialForLevel } from "@/lib/db/materials";
+import { findMaterialForLevel, findMaterialId } from "@/lib/db/materials";
 import { startLessonSession } from "@/lib/db/sessions";
 import { OpenAIRequestError } from "@/lib/openai/client";
 
@@ -173,6 +173,37 @@ describe.skipIf(!hasDb)("POST /api/realtime/session", () => {
       createRealtimeCall.mock.calls[0]?.[0].session.instructions;
     expect(instructions).toContain("`optional` は");
     expect(instructions).not.toContain("`against` は賛成と反対のどちらですか？");
+  });
+
+  it("記録する対象が無い教材には tool を渡さない", async () => {
+    const sessionId = await newSession(STUDENT_A);
+
+    await POST(post({ lessonSessionId: sessionId, sdp: "v=0" }));
+
+    // Club Activities（Take5）は questions を持たない。
+    // 渡せばモデルが呼べてしまい、必ず弾かれる呼び出しが増えるだけ
+    const sent = createRealtimeCall.mock.calls[0]?.[0];
+    expect(sent.session.tools).toBeUndefined();
+  });
+
+  it("記録する対象がある教材には record_answer だけを渡す", async () => {
+    const materialId = await findMaterialId("school-uniforms", "beginner");
+    expect(materialId).not.toBeNull();
+
+    const session = await startLessonSession({
+      studentId: STUDENT_A,
+      materialId: materialId!,
+      rubricVersion: "v1",
+      promptVersion: "v1",
+    });
+
+    await POST(post({ lessonSessionId: session.id, sdp: "v=0" }));
+
+    const sent = createRealtimeCall.mock.calls[0]?.[0];
+    const names = (sent.session.tools as { name: string }[]).map(
+      (tool) => tool.name,
+    );
+    expect(names).toEqual(["record_answer"]);
   });
 
   it("生の student_id を OpenAI へ送らない", async () => {

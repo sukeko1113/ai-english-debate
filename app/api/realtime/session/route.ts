@@ -12,6 +12,7 @@ import {
 import { buildInstructions, resolvePhase } from "@/lib/openai/instructions";
 import { safetyIdFor } from "@/lib/openai/safety-id";
 import { buildRealtimeSession } from "@/lib/openai/session-config";
+import { LESSON_TOOLS } from "@/lib/openai/tools";
 
 /**
  * POST /api/realtime/session — WebRTC の SDP を中継する。
@@ -65,11 +66,11 @@ export async function POST(request: Request): Promise<Response> {
     }
 
     const model = getRealtimeModel();
-    const instructions = await instructionsForSession(session);
+    const { instructions, tools } = await sessionSetupFor(session);
 
     const result = await createRealtimeCall({
       sdp,
-      session: buildRealtimeSession({ model, instructions }),
+      session: buildRealtimeSession({ model, instructions, tools }),
       safetyId: safetyIdFor(student.id),
     });
 
@@ -98,7 +99,7 @@ export async function POST(request: Request): Promise<Response> {
 }
 
 /**
- * 教材と現在フェーズから instructions を組み立てる。
+ * 教材と現在フェーズから instructions と tool を決める。
  *
  * フェーズはアプリ側の lesson_sessions.current_phase が正。未設定なら
  * 教材の最初のフェーズを使い、その値を保存する。以後は接続が切れても
@@ -107,30 +108,40 @@ export async function POST(request: Request): Promise<Response> {
  * 教材にフェーズ定義が無ければ undefined を返し、
  * lib/openai/session-config.ts の既定 instructions に任せる。
  */
-async function instructionsForSession(session: {
+async function sessionSetupFor(session: {
   id: string;
   studentId: string;
   materialId: string;
   currentPhase: string | null;
-}): Promise<string | undefined> {
+}): Promise<{
+  instructions: string | undefined;
+  tools: typeof LESSON_TOOLS | undefined;
+}> {
   const [material, phases] = await Promise.all([
     getLessonMaterial(session.materialId),
     getLessonPhases(session.materialId),
   ]);
-  if (!material) return undefined;
+  if (!material) return { instructions: undefined, tools: undefined };
+
+  // 記録する対象（questions）が無い教材には tool を渡さない。
+  // 渡せばモデルが呼べてしまい、必ず弾かれる呼び出しが増えるだけ
+  const tools = material.questions.length > 0 ? LESSON_TOOLS : undefined;
 
   const resolved = resolvePhase(phases, session.currentPhase);
-  if (!resolved) return undefined;
+  if (!resolved) return { instructions: undefined, tools };
 
   if (session.currentPhase !== resolved.phase.id) {
     await setCurrentPhase(session.id, session.studentId, resolved.phase.id);
   }
 
-  return buildInstructions({
-    material,
-    phase: resolved.phase,
-    isLastPhase: resolved.isLastPhase,
-  });
+  return {
+    instructions: buildInstructions({
+      material,
+      phase: resolved.phase,
+      isLastPhase: resolved.isLastPhase,
+    }),
+    tools,
+  };
 }
 
 function readBody(body: unknown): {

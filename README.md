@@ -103,7 +103,8 @@ npm run seed:content # 教材JSONの投入
 
 ### 現在の実装状況
 
-`docs/TASKS.md` の Task 4 ＋ Take5（Club Activities 教材の最小授業）まで。
+`docs/TASKS.md` の Task 6 ＋ Take5（Club Activities 教材の最小授業）まで。
+**「音声往復 → 教材注入 → 保存1件」の縦の貫通は完了。**
 
 - `GET /api/lessons/today` / `POST /api/lesson-sessions`
 - 生徒画面 `/student` と授業画面 `/student/lesson/[materialId]`（4領域）
@@ -111,6 +112,12 @@ npm run seed:content # 教材JSONの投入
 
 - Club Activities 教材と AI教師プロンプト v03 を Realtime session へ注入
   （`lib/openai/instructions.ts`。**現在フェーズの1問だけ**を渡す）
+
+- `POST /api/results/answer` と `record_answer` tool（記録専用・点数を扱わない）
+
+`record_answer` は **questions を持つ教材のセッションにだけ渡す**。
+Club Activities（Take5）は書く課題を持たないため tool は渡らない。
+動作を見るには School Uniforms の教材でセッションを作る。
 
 Take5 で有効な授業フェーズは **S00_START と S10_OPENING のみ**。
 Signpost 以降・ディクテーション・英作文・論拠作成・ミニディベート・採点・教師画面は未実装。
