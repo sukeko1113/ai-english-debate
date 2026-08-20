@@ -19,6 +19,7 @@ export {
 export { countRecentCalls, recordRealtimeCall } from "./realtime";
 export { getStudentByAuthUserId, getStudentById } from "./students";
 export { appendTranscript, getTranscript } from "./transcript";
+export { addUsage, getSessionUsage, modelForSession } from "./usage";
 export {
   completeStep,
   findOwnedSession,

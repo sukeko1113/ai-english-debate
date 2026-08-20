@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { dispatchFunctionCall } from "@/lib/openai/function-calls";
 import { toTranscriptLine } from "@/lib/openai/transcript-events";
+import { toUsageDelta } from "@/lib/openai/usage-events";
 import {
   REALTIME_DATA_CHANNEL,
   isFunctionCallDone,
@@ -178,6 +179,20 @@ export function useRealtimeSession(
 
         if (parsed.type === "error") {
           console.error("[realtime] イベントエラー", parsed);
+          return;
+        }
+
+        // 利用量。授業単価を出すために記録する
+        // （docs/REALTIME_ARCHITECTURE.md §8）
+        const usage = toUsageDelta(parsed);
+        if (usage) {
+          void fetch("/api/results/usage", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ lessonSessionId, ...usage }),
+          }).catch(() => {
+            console.warn("[realtime] 利用量の記録に失敗した");
+          });
           return;
         }
 

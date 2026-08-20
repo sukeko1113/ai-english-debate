@@ -117,9 +117,18 @@ npm run seed:content # 教材JSONの投入
 - `POST /api/results/phase` と `mark_phase_complete` tool（フェーズを進める）
 - `POST /api/results/transcript`（書き起こしの保存と、中央ペインへの表示）
 - 確定採点 `lib/scoring/`（ディクテーションの文字列照合。純粋関数）
+- `POST /api/results/usage`（利用量の記録。授業単価を出すため）
 
 **進行を決めるのはアプリで、モデルではない。** モデルが違うフェーズの完了を
 主張しても `current_phase` は動かず、警告ログだけが残る。
+
+利用量は応答ごとに足し込む。**モデル名はブラウザの申告を使わず**、
+接続時に `realtime_calls` へ記録した値を使う（費用計算に直結するため）。
+`connected_seconds` はサーバーの時計で出す。
+
+**単価表 `lib/openai/pricing.ts` は空**。推測の値を入れていないので、
+`estimated_cost_usd` は単価を入れるまで空のまま。トークン数と接続時間は
+記録され続けるので、後から単価を入れて再計算できる。
 
 確定採点はまだ `/finish` へつないでいない（モデル採点と一緒に実装する）。
 Speaking を採点しない場合の満点の扱いは未決なので、`docs/RUBRIC.md`
