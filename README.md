@@ -116,9 +116,14 @@ npm run seed:content # 教材JSONの投入
 - `POST /api/results/answer` と `record_answer` tool（記録専用・点数を扱わない）
 - `POST /api/results/phase` と `mark_phase_complete` tool（フェーズを進める）
 - `POST /api/results/transcript`（書き起こしの保存と、中央ペインへの表示）
+- 確定採点 `lib/scoring/`（ディクテーションの文字列照合。純粋関数）
 
 **進行を決めるのはアプリで、モデルではない。** モデルが違うフェーズの完了を
 主張しても `current_phase` は動かず、警告ログだけが残る。
+
+確定採点はまだ `/finish` へつないでいない（モデル採点と一緒に実装する）。
+Speaking を採点しない場合の満点の扱いは未決なので、`docs/RUBRIC.md`
+「MVP での扱い」のとおり教員と決めてから `/finish` を作る。
 
 書き起こしは接続のたびに保存し、**seq はサーバーが採番する**。
 ブラウザの採番をそのまま使うと、再接続で振り出しに戻ったときに
