@@ -97,10 +97,25 @@ describe("ディクテーション一式の採点", () => {
       {
         key: "dict-1",
         correct: false,
+        answered: true,
         normalized: "helo world",
         expectedNormalized: "hello world",
       },
     ]);
+  });
+
+  it("未回答は不正解として分母に数える", () => {
+    // 飛ばした方が得点率が上がってはいけない
+    const score = scoreDictationSet([
+      item("dict-1", "hello world", "Hello world."),
+      { key: "dict-2", answerText: null, expected: "Good morning." },
+      { key: "dict-3", answerText: null, expected: "Good evening." },
+    ]);
+
+    expect(score.total).toBe(3);
+    expect(score.correct).toBe(1);
+    expect(score.rawScore).toBe(3);
+    expect(score.evidence[1]).toMatchObject({ answered: false, correct: false });
   });
 
   it("ディクテーションが無い教材では applicable が false", () => {

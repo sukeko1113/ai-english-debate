@@ -41,8 +41,11 @@ export function scoreDictation(
 export interface DictationItem {
   /** questions.key。どの問題かを教員が追えるように残す */
   key: string;
-  /** 生徒の答案（生のまま） */
-  answerText: string;
+  /**
+   * 生徒の答案（生のまま）。**答えていない問題は null。**
+   * 未回答は不正解として数える。飛ばした方が得になってはいけない。
+   */
+  answerText: string | null;
   /** 教材の正解 */
   expected: string;
 }
@@ -50,6 +53,8 @@ export interface DictationItem {
 export interface DictationEvidence {
   key: string;
   correct: boolean;
+  /** 答案があったか。無回答と誤答を教員が区別できるようにする */
+  answered: boolean;
   normalized: string;
   expectedNormalized: string;
 }
@@ -72,6 +77,13 @@ export interface DictationScore {
  * 項目が無い教材（Club Activities など）では applicable: false を返し、
  * 満点の扱いは呼び出し側（/finish）に委ねる。
  *
+ * **未回答は不正解として分母に数える。** 答えなかった問題を分母から外すと、
+ * 飛ばすほど得点率が上がってしまう。
+ *
+ * TODO(要確認): 途中で終わった授業（時間切れ・接続断）では、扱わなかった
+ * 問題まで不正解になる。授業がどこまで進んだかを見て分母を決めるべきか、
+ * 教員と決める必要がある。いまは教員が score_overrides で直せる。
+ *
  * TODO(要確認): 満点をどう扱うか。docs/RUBRIC.md「MVP での扱い」は
  * Speaking を採点しない場合の満点を「85点にするか教員入力必須にするか」
  * 実装前に確認せよとしている。ディクテーションが無い教材でも同じ判断が要る。
@@ -80,10 +92,11 @@ export function scoreDictationSet(
   items: readonly DictationItem[],
 ): DictationScore {
   const evidence = items.map((item): DictationEvidence => {
-    const result = scoreDictation(item.answerText, item.expected);
+    const result = scoreDictation(item.answerText ?? "", item.expected);
     return {
       key: item.key,
       correct: result.correct,
+      answered: item.answerText !== null,
       normalized: result.normalized,
       expectedNormalized: result.expectedNormalized,
     };
