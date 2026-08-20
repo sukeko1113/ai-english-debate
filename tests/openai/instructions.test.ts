@@ -64,12 +64,14 @@ const secondPhase: LessonPhase = {
   ],
 };
 
+const phases = [firstPhase, secondPhase];
+
 describe("session instructions", () => {
   it("教材と現在フェーズの質問が入る", () => {
     const text = buildInstructions({
       material,
-      phase: firstPhase,
-      isLastPhase: false,
+      phases,
+      currentPhaseId: firstPhase.id,
     });
 
     expect(text).toContain("クラブ活動の任意化");
@@ -81,23 +83,51 @@ describe("session instructions", () => {
     expect(text).toContain("ヒント2");
   });
 
-  it("先のフェーズの質問を混ぜない", () => {
+  it("いま扱うフェーズがどれかを明示する", () => {
     const text = buildInstructions({
       material,
-      phase: firstPhase,
-      isLastPhase: false,
+      phases,
+      currentPhaseId: firstPhase.id,
     });
 
-    // docs/REALTIME_ARCHITECTURE.md §3: 現在の step の指示だけを入れる
-    expect(text).not.toContain("`optional` は必ずやる意味ですか");
-    expect(text).not.toContain("S10_OPENING");
+    expect(text).toContain("いま扱うフェーズの id は S00_START です");
+    // 現在フェーズの質問は「このターンで扱う質問」の側にある
+    const current = text.slice(
+      text.indexOf("## このターンで扱う質問"),
+      text.indexOf("## この先のフェーズ"),
+    );
+    expect(current).toContain("`against` は賛成と反対のどちらですか？");
+    expect(current).not.toContain("`optional` は必ずやる意味ですか");
+  });
+
+  it("先のフェーズはアプリの合図待ちとして分けて置く", () => {
+    const text = buildInstructions({
+      material,
+      phases,
+      currentPhaseId: firstPhase.id,
+    });
+
+    // 先の内容はモデルには渡す（サーバー → OpenAI の経路のみ。
+    // ブラウザには渡さない。docs/SECURITY.md §2）
+    const upcoming = text.slice(text.indexOf("## この先のフェーズ"));
+    expect(upcoming).toContain("S10_OPENING");
+    expect(upcoming).toContain("`optional` は必ずやる意味ですか");
+
+    // 進むのはアプリが決める
+    expect(upcoming).toContain(
+      "**アプリが next_phase で名前を告げるまで、ここから先を始めないこと。**",
+    );
+    expect(text).toContain(
+      'mark_phase_complete({ phase_id: "S00_START" }) を呼びます',
+    );
+    expect(text).toContain("返事が届くまで次のフェーズを始めないでください");
   });
 
   it("1問ずつ・すぐ答えない・点数を言わない を必ず含む", () => {
     const text = buildInstructions({
       material,
-      phase: firstPhase,
-      isLastPhase: false,
+      phases,
+      currentPhaseId: firstPhase.id,
     });
 
     expect(text).toContain("1ターンに質問は1つだけ");
@@ -111,16 +141,17 @@ describe("session instructions", () => {
   it("最後のフェーズでは先へ進ませない", () => {
     const text = buildInstructions({
       material,
-      phase: secondPhase,
-      isLastPhase: true,
+      phases,
+      currentPhaseId: secondPhase.id,
     });
 
-    expect(text).toContain("今日はここまで");
-    expect(text).toContain("次のセクションへ進まないでください");
+    expect(text).toContain("今日はここまでです");
+    expect(text).toContain("next_phase は null が返ります");
+    // 最後のフェーズには「この先のフェーズ」を付けない
+    expect(text).not.toContain("## この先のフェーズ");
   });
 
   describe("フェーズの決定", () => {
-    const phases = [firstPhase, secondPhase];
 
     it("未設定なら最初のフェーズ", () => {
       expect(resolvePhase(phases, null)?.phase.id).toBe("S00_START");

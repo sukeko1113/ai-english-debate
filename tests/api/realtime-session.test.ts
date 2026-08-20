@@ -133,8 +133,10 @@ describe.skipIf(!hasDb)("POST /api/realtime/session", () => {
     // すぐ答えを言わせない
     expect(instructions).toContain("質問した同じターンで正解を言わない");
 
-    // 点数を扱う tool を渡さない（CLAUDE.md 禁止事項2）
-    expect(sent.session.tools).toBeUndefined();
+    // 渡す tool に点数の引数が無いこと（CLAUDE.md 禁止事項2）
+    expect(JSON.stringify(sent.session.tools)).not.toMatch(
+      /"(score|grade|correct)"\s*:/,
+    );
   });
 
   it("現在フェーズをアプリ側に保存する。モデルの記憶に依存しない", async () => {
@@ -175,15 +177,18 @@ describe.skipIf(!hasDb)("POST /api/realtime/session", () => {
     expect(instructions).not.toContain("`against` は賛成と反対のどちらですか？");
   });
 
-  it("記録する対象が無い教材には tool を渡さない", async () => {
+  it("書く課題が無い教材には record_answer を渡さない", async () => {
     const sessionId = await newSession(STUDENT_A);
 
     await POST(post({ lessonSessionId: sessionId, sdp: "v=0" }));
 
-    // Club Activities（Take5）は questions を持たない。
-    // 渡せばモデルが呼べてしまい、必ず弾かれる呼び出しが増えるだけ
+    // Club Activities（Take5）は questions を持たないので記録用の tool は不要。
+    // フェーズはあるので進行用の tool だけを渡す
     const sent = createRealtimeCall.mock.calls[0]?.[0];
-    expect(sent.session.tools).toBeUndefined();
+    const names = (sent.session.tools as { name: string }[]).map(
+      (tool) => tool.name,
+    );
+    expect(names).toEqual(["mark_phase_complete"]);
   });
 
   it("記録する対象がある教材には record_answer だけを渡す", async () => {
@@ -203,6 +208,7 @@ describe.skipIf(!hasDb)("POST /api/realtime/session", () => {
     const names = (sent.session.tools as { name: string }[]).map(
       (tool) => tool.name,
     );
+    // School Uniforms は questions を持つがフェーズが無い
     expect(names).toEqual(["record_answer"]);
   });
 

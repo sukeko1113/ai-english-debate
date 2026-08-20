@@ -114,6 +114,14 @@ npm run seed:content # 教材JSONの投入
   （`lib/openai/instructions.ts`。**現在フェーズの1問だけ**を渡す）
 
 - `POST /api/results/answer` と `record_answer` tool（記録専用・点数を扱わない）
+- `POST /api/results/phase` と `mark_phase_complete` tool（フェーズを進める）
+
+**進行を決めるのはアプリで、モデルではない。** モデルが違うフェーズの完了を
+主張しても `current_phase` は動かず、警告ログだけが残る。
+
+フェーズの instructions には受理する答えとヒントが入っているので、
+**ブラウザには返さない**（`docs/SECURITY.md` §2）。モデルへはサーバーから
+OpenAI へ直接渡し、ブラウザが受け取るのは次のフェーズの名前だけ。
 
 `record_answer` は **questions を持つ教材のセッションにだけ渡す**。
 Club Activities（Take5）は書く課題を持たないため tool は渡らない。

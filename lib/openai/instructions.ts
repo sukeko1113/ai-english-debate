@@ -10,8 +10,20 @@ import type { LessonMaterial, LessonPhase } from "../db/types";
  * 守っていること:
  *   - **教材の中身をここへ書かない。** 引数で受け取る
  *     （CLAUDE.md「教材をコードに埋め込まない」）
- *   - **現在のフェーズの指示だけを入れる。** 全フェーズを1つの長い prompt に
- *     詰め込まない（docs/REALTIME_ARCHITECTURE.md §3）
+ *   - **いま扱うフェーズを明示し、先のフェーズはアプリの合図待ちとして分ける。**
+ *
+ * docs/REALTIME_ARCHITECTURE.md §3 からの逸脱と、その理由:
+ *   §3 は「現在の step の指示だけを入れ、進んだら session.update で差し替える」
+ *   としている。しかし session.update を送るのはブラウザなので、その経路に
+ *   instructions を通すと、受理する答えとヒント（＝正解）が生徒に見えてしまう
+ *   （docs/SECURITY.md §2「教材の正解はブラウザに送らない」）。
+ *   そこで、instructions はサーバー → OpenAI の経路だけで渡し、先のフェーズも
+ *   接続時にまとめて渡したうえで、**進んでよいかどうかはアプリが決める**
+ *   （mark_phase_complete の返事が来るまで先へ進ませない）。
+ *
+ *   TODO(要確認): フェーズが増えると prompt が長くなる。本来は
+ *   call_id を使ってサーバーから session.update を送るのが筋で、
+ *   その経路が使えるか実接続で確認したい
  *   - **点数を言わせない。** 採点はセッション終了後にサーバー側で行う
  *     （CLAUDE.md 禁止事項2）。v03 §9 の save_lesson_result のように
  *     モデルへ点数を作らせる設計は採用しない
@@ -19,10 +31,10 @@ import type { LessonMaterial, LessonPhase } from "../db/types";
 
 export interface BuildInstructionsParams {
   material: LessonMaterial;
+  /** 教材の全フェーズ */
+  phases: LessonPhase[];
   /** アプリ側が持っている現在フェーズ（lesson_sessions.current_phase） */
-  phase: LessonPhase;
-  /** このフェーズが最後なら、勝手に先へ進ませない */
-  isLastPhase: boolean;
+  currentPhaseId: string;
 }
 
 /** v03 §4 / §11。教材によらず共通のルール */
@@ -39,6 +51,10 @@ const TEACHING_RULES = [
   "説明と質問は日本語で行う。教材の英文だけは英語でゆっくり読む。",
   "生徒は日本語で答えてよい。英語を強要しない。",
   "生徒が「本文を出して」「もう一回」「ゆっくり」「日本語で」と言ったら、それに従う。",
+  "いま扱っているフェーズの質問がすべて終わったら、mark_phase_complete を呼ぶ。",
+  "**mark_phase_complete の返事（next_phase）が届くまで、次のフェーズを始めない。**" +
+    " 返事が ok:false なら、いまのフェーズを続ける。",
+  "next_phase が null なら、それ以上進まず「今日はここまで」と伝えて終わる。",
 ];
 
 function renderQuestion(
@@ -60,7 +76,18 @@ function renderQuestion(
 }
 
 export function buildInstructions(params: BuildInstructionsParams): string {
-  const { material, phase, isLastPhase } = params;
+  const { material, phases } = params;
+
+  const currentIndex = Math.max(
+    phases.findIndex((candidate) => candidate.id === params.currentPhaseId),
+    0,
+  );
+  const phase = phases[currentIndex];
+  if (!phase) {
+    throw new Error("フェーズが1つも無い教材では instructions を作れない");
+  }
+  const upcoming = phases.slice(currentIndex + 1);
+  const isLastPhase = upcoming.length === 0;
 
   const sections: string[] = [
     "あなたは日本人高校生・大学初年次向けの英語ディベート教師です。",
@@ -89,6 +116,7 @@ export function buildInstructions(params: BuildInstructionsParams): string {
   sections.push(
     "",
     "## このターンで扱う質問",
+    `いま扱うフェーズの id は ${phase.id} です。`,
     "**下の質問を上から順に1つずつ出します。1つ質問したら必ず止まって回答を待ちます。**",
     "",
     phase.questions.map(renderQuestion).join("\n\n"),
@@ -96,14 +124,40 @@ export function buildInstructions(params: BuildInstructionsParams): string {
     "## このフェーズが終わったら",
     isLastPhase
       ? [
-          "ここまでが今日の範囲です。次のセクションへ進まないでください。",
-          "「今日はここまでです。次回は続きの Signpost から進めます」と伝えて終わります。",
+          `全部終わったら mark_phase_complete({ phase_id: "${phase.id}" }) を呼びます。`,
+          "next_phase は null が返ります。ここまでが今日の範囲です。",
+          "「今日はここまでです」と伝えて終わります。",
           "生徒が続きを求めても、まだ用意ができていないことを伝えて終わります。",
         ].join("\n")
-      : "この先のセクションは、アプリから次の指示が届くまで始めないでください。",
+      : [
+          `全部終わったら mark_phase_complete({ phase_id: "${phase.id}" }) を呼びます。`,
+          "**返事が届くまで次のフェーズを始めないでください。**",
+          "返事の next_phase が、次に進んでよいフェーズの id です。",
+          "ok:false が返ったら進まず、いまのフェーズを続けます。",
+        ].join("\n"),
   );
 
+  if (upcoming.length > 0) {
+    sections.push(
+      "",
+      "## この先のフェーズ",
+      "**アプリが next_phase で名前を告げるまで、ここから先を始めないこと。**",
+      "先に読んで内容を漏らさないこと。生徒に先の質問を予告しないこと。",
+      "",
+      upcoming.map(renderPhase).join("\n\n"),
+    );
+  }
+
   return sections.join("\n");
+}
+
+/** 先のフェーズ。順番が来たら使う */
+function renderPhase(phase: LessonPhase): string {
+  return [
+    `### フェーズ ${phase.id}（${phase.section} / ${phase.labelJa}）`,
+    `注目する文: ${phase.focusSentence}`,
+    phase.questions.map(renderQuestion).join("\n\n"),
+  ].join("\n");
 }
 
 /**

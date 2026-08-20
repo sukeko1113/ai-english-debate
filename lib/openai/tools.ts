@@ -17,7 +17,16 @@ import type { RealtimeToolsConfig } from "openai/resources/realtime/realtime";
 /** ブラウザから受けた tool 名を API ルートへ対応づける */
 export const TOOL_ROUTES: Readonly<Record<string, string>> = {
   record_answer: "/api/results/answer",
+  mark_phase_complete: "/api/results/phase",
 };
+
+/**
+ * サーバーの応答のうち、モデルへ返してよいキー。
+ *
+ * **正誤・点数は絶対に含めない**（docs/REALTIME_ARCHITECTURE.md §4）。
+ * next_phase は授業の進行位置であって採点結果ではないので返してよい。
+ */
+export const ALLOWED_TOOL_OUTPUT_KEYS = ["ok", "next_phase"] as const;
 
 export const LESSON_TOOLS = [
   {
@@ -46,4 +55,38 @@ export const LESSON_TOOLS = [
       additionalProperties: false,
     },
   },
+  {
+    type: "function",
+    name: "mark_phase_complete",
+    description:
+      "Call this when the current lesson phase is finished, that is, when the " +
+      "student has answered every question of the current phase. " +
+      "Pass the id of the phase you just finished. " +
+      "The application decides what comes next and replies with next_phase. " +
+      "Do not start the next phase before that reply arrives.",
+    parameters: {
+      type: "object",
+      properties: {
+        phase_id: {
+          type: "string",
+          description: "The id of the phase that has just been finished",
+        },
+      },
+      required: ["phase_id"],
+      additionalProperties: false,
+    },
+  },
 ] as const satisfies RealtimeToolsConfig;
+
+/** 教材が持っているものに応じて、渡す tool を選ぶ */
+export function toolsFor(options: {
+  hasQuestions: boolean;
+  hasPhases: boolean;
+}): RealtimeToolsConfig | undefined {
+  const names: string[] = [];
+  if (options.hasQuestions) names.push("record_answer");
+  if (options.hasPhases) names.push("mark_phase_complete");
+  if (names.length === 0) return undefined;
+
+  return LESSON_TOOLS.filter((tool) => names.includes(tool.name));
+}

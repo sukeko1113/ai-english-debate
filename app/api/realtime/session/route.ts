@@ -12,7 +12,7 @@ import {
 import { buildInstructions, resolvePhase } from "@/lib/openai/instructions";
 import { safetyIdFor } from "@/lib/openai/safety-id";
 import { buildRealtimeSession } from "@/lib/openai/session-config";
-import { LESSON_TOOLS } from "@/lib/openai/tools";
+import { toolsFor } from "@/lib/openai/tools";
 
 /**
  * POST /api/realtime/session — WebRTC の SDP を中継する。
@@ -115,7 +115,7 @@ async function sessionSetupFor(session: {
   currentPhase: string | null;
 }): Promise<{
   instructions: string | undefined;
-  tools: typeof LESSON_TOOLS | undefined;
+  tools: ReturnType<typeof toolsFor>;
 }> {
   const [material, phases] = await Promise.all([
     getLessonMaterial(session.materialId),
@@ -123,9 +123,12 @@ async function sessionSetupFor(session: {
   ]);
   if (!material) return { instructions: undefined, tools: undefined };
 
-  // 記録する対象（questions）が無い教材には tool を渡さない。
-  // 渡せばモデルが呼べてしまい、必ず弾かれる呼び出しが増えるだけ
-  const tools = material.questions.length > 0 ? LESSON_TOOLS : undefined;
+  // 使い道が無い tool は渡さない。渡せばモデルが呼べてしまい、
+  // 必ず弾かれる呼び出しが増えるだけ
+  const tools = toolsFor({
+    hasQuestions: material.questions.length > 0,
+    hasPhases: phases.length > 0,
+  });
 
   const resolved = resolvePhase(phases, session.currentPhase);
   if (!resolved) return { instructions: undefined, tools };
@@ -137,8 +140,8 @@ async function sessionSetupFor(session: {
   return {
     instructions: buildInstructions({
       material,
-      phase: resolved.phase,
-      isLastPhase: resolved.isLastPhase,
+      phases,
+      currentPhaseId: resolved.phase.id,
     }),
     tools,
   };

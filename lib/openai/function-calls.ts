@@ -1,4 +1,4 @@
-import { TOOL_ROUTES } from "./tools";
+import { ALLOWED_TOOL_OUTPUT_KEYS, TOOL_ROUTES } from "./tools";
 import type { FunctionCallArgumentsDoneEvent } from "./types";
 
 /**
@@ -23,9 +23,33 @@ export interface DispatchParams {
   fetchImpl?: typeof fetch;
 }
 
-/** モデルへ返す結果。**{ ok } 以外を増やさないこと** */
+/**
+ * モデルへ返す結果。
+ *
+ * **正誤・点数を含めないこと。** 含めるとモデルがそれを口に出す。
+ * 返してよいキーは ALLOWED_TOOL_OUTPUT_KEYS に列挙したものだけで、
+ * サーバーの応答をそのまま素通しにしない。
+ */
 interface ToolOutput {
   ok: boolean;
+  /** 授業の進行位置。採点結果ではない */
+  next_phase?: string | null;
+}
+
+/** サーバーの応答から、モデルへ返してよいキーだけを取り出す */
+function pickAllowed(payload: unknown, ok: boolean): ToolOutput {
+  const output: ToolOutput = { ok };
+  if (typeof payload !== "object" || payload === null) return output;
+
+  const record = payload as Record<string, unknown>;
+  for (const key of ALLOWED_TOOL_OUTPUT_KEYS) {
+    if (key === "ok") continue;
+    const value = record[key];
+    if (typeof value === "string" || value === null) {
+      output[key] = value;
+    }
+  }
+  return output;
 }
 
 function parseArguments(raw: string): Record<string, unknown> | null {
@@ -75,20 +99,32 @@ export async function dispatchFunctionCall(
     return output;
   }
 
-  let ok = false;
+  let output: ToolOutput = { ok: false };
   try {
     const response = await fetchImpl(route, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ lessonSessionId, args }),
     });
-    ok = response.ok;
+
+    const payload: unknown = response.ok
+      ? await response.json().catch(() => null)
+      : null;
+    // サーバーが ok:false を返すこともある（フェーズの食い違いなど）
+    const serverOk =
+      typeof payload === "object" &&
+      payload !== null &&
+      "ok" in payload &&
+      typeof (payload as { ok: unknown }).ok === "boolean"
+        ? (payload as { ok: boolean }).ok
+        : response.ok;
+
+    output = pickAllowed(payload, response.ok && serverOk);
   } catch {
     // 保存に失敗しても授業を止めない。モデルには ok:false だけ返す
-    ok = false;
+    output = { ok: false };
   }
 
-  const output: ToolOutput = { ok };
   sendOutput(send, event.call_id, output);
   return output;
 }

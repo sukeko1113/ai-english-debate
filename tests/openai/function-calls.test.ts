@@ -45,6 +45,7 @@ describe("record_answer の tool 定義", () => {
       "item_id",
       "answer_text",
       "attempt_no",
+      "phase_id",
     ]);
   });
 
@@ -54,9 +55,15 @@ describe("record_answer の tool 定義", () => {
     expect(argumentNames()).not.toContain("student_id");
   });
 
-  it("Task 6 では record_answer だけ", () => {
-    expect(LESSON_TOOLS.map((tool) => tool.name)).toEqual(["record_answer"]);
-    expect(Object.keys(TOOL_ROUTES)).toEqual(["record_answer"]);
+  it("tool は記録用と進行用の2つだけ", () => {
+    expect(LESSON_TOOLS.map((tool) => tool.name)).toEqual([
+      "record_answer",
+      "mark_phase_complete",
+    ]);
+    expect(Object.keys(TOOL_ROUTES).sort()).toEqual([
+      "mark_phase_complete",
+      "record_answer",
+    ]);
   });
 });
 
