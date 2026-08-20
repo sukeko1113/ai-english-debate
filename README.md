@@ -115,9 +115,16 @@ npm run seed:content # 教材JSONの投入
 
 - `POST /api/results/answer` と `record_answer` tool（記録専用・点数を扱わない）
 - `POST /api/results/phase` と `mark_phase_complete` tool（フェーズを進める）
+- `POST /api/results/transcript`（書き起こしの保存と、中央ペインへの表示）
 
 **進行を決めるのはアプリで、モデルではない。** モデルが違うフェーズの完了を
 主張しても `current_phase` は動かず、警告ログだけが残る。
+
+書き起こしは接続のたびに保存し、**seq はサーバーが採番する**。
+ブラウザの採番をそのまま使うと、再接続で振り出しに戻ったときに
+既存の行とぶつかって新しい行が捨てられるため。
+授業画面を開き直しても、保存済みの会話履歴が中央ペインに出る。
+**音声そのものは保存しない**（`docs/SECURITY.md` §4）。
 
 フェーズの instructions には受理する答えとヒントが入っているので、
 **ブラウザには返さない**（`docs/SECURITY.md` §2）。モデルへはサーバーから

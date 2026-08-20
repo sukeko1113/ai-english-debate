@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { dispatchFunctionCall } from "@/lib/openai/function-calls";
+import { toTranscriptLine } from "@/lib/openai/transcript-events";
 import {
   REALTIME_DATA_CHANNEL,
   isFunctionCallDone,
@@ -28,9 +29,17 @@ export type VoiceStatus =
   | "connected"
   | "error";
 
+/** 画面に出す会話履歴の1行 */
+export interface TranscriptEntry {
+  speaker: "student" | "tutor";
+  text: string;
+}
+
 export interface UseRealtimeSession {
   status: VoiceStatus;
   error: string | null;
+  /** 中央ペインに出す会話履歴 */
+  transcript: TranscriptEntry[];
   /** 授業画面が <audio> に渡す。AI の声はここから鳴る */
   audioRef: React.RefObject<HTMLAudioElement | null>;
   start: () => Promise<void>;
@@ -77,13 +86,22 @@ function messageForStatus(status: number): string {
 
 export function useRealtimeSession(
   lessonSessionId: string | null,
+  /** 再読み込み・再接続でも消えないよう、保存済みの履歴から始める */
+  initialTranscript: readonly TranscriptEntry[] = [],
 ): UseRealtimeSession {
   const [status, setStatus] = useState<VoiceStatus>("idle");
   const [error, setError] = useState<string | null>(null);
+  const [transcript, setTranscript] = useState<TranscriptEntry[]>([
+    ...initialTranscript,
+  ]);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const micRef = useRef<MediaStream | null>(null);
+  /** セッション開始時刻。書き起こしの started_at_ms を出すのに使う */
+  const startedAtRef = useRef<number>(0);
+  /** ブラウザ側の連番。保存する seq はサーバーが採番する */
+  const seqRef = useRef<number>(0);
 
   /** 接続とマイクを解放する。status は変えない（失敗表示を消さないため） */
   const release = useCallback(() => {
@@ -120,6 +138,7 @@ export function useRealtimeSession(
     try {
       const mic = await navigator.mediaDevices.getUserMedia({ audio: true });
       micRef.current = mic;
+      startedAtRef.current = Date.now();
 
       setStatus("connecting");
 
@@ -159,6 +178,31 @@ export function useRealtimeSession(
 
         if (parsed.type === "error") {
           console.error("[realtime] イベントエラー", parsed);
+          return;
+        }
+
+        const line = toTranscriptLine(parsed);
+        if (line) {
+          setTranscript((previous) => [...previous, line]);
+          // 保存に失敗しても授業は止めない（docs/SECURITY.md の運用方針）
+          seqRef.current += 1;
+          void fetch("/api/results/transcript", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              lessonSessionId,
+              items: [
+                {
+                  seq: seqRef.current,
+                  speaker: line.speaker,
+                  text: line.text,
+                  startedAtMs: Math.max(0, Date.now() - startedAtRef.current),
+                },
+              ],
+            }),
+          }).catch(() => {
+            console.warn("[realtime] 書き起こしの保存に失敗した");
+          });
           return;
         }
 
@@ -209,5 +253,5 @@ export function useRealtimeSession(
     }
   }, [lessonSessionId, release]);
 
-  return { status, error, audioRef, start, stop };
+  return { status, error, transcript, audioRef, start, stop };
 }

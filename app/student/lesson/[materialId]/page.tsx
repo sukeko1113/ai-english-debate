@@ -2,11 +2,11 @@ import { notFound } from "next/navigation";
 
 import { MaterialPane } from "@/components/lesson/MaterialPane";
 import { StepPanel } from "@/components/lesson/StepPanel";
-import { TranscriptPane } from "@/components/lesson/TranscriptPane";
-import { VoiceControls } from "@/components/voice/VoiceControls";
+import { VoiceSession } from "@/components/voice/VoiceSession";
 import { requireStudent } from "@/lib/auth/student";
 import { getLessonMaterial } from "@/lib/db/materials";
 import { findUnfinishedSession } from "@/lib/db/sessions";
+import { getTranscript } from "@/lib/db/transcript";
 
 /**
  * 授業画面。docs/BASIC_DESIGN_v03.md §3.2 の4領域。
@@ -35,6 +35,9 @@ export default async function LessonPage({
   const session = await findUnfinishedSession(student.id, materialId);
   const currentStep = session?.currentStep ?? 1;
 
+  // 接続が切れても会話履歴が消えないよう、保存済みの分を先に渡す
+  const transcript = session ? await getTranscript(session.id) : [];
+
   return (
     <div className="flex h-dvh flex-col">
       <header className="flex flex-wrap items-baseline gap-x-3 border-b border-black/10 px-4 py-3 dark:border-white/15">
@@ -47,18 +50,23 @@ export default async function LessonPage({
         </span>
       </header>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1fr)]">
-        <MaterialPane material={material} />
-        <TranscriptPane topicTitle={material.topic.titleJa} />
-        <StepPanel
-          currentStep={currentStep}
-          currentPhaseId={session?.currentPhase ?? null}
-          phases={material.phases}
-          questions={material.questions}
-        />
-      </div>
-
-      <VoiceControls lessonSessionId={session?.id ?? null} />
+      <VoiceSession
+        lessonSessionId={session?.id ?? null}
+        topicTitle={material.topic.titleJa}
+        initialTranscript={transcript.map((line) => ({
+          speaker: line.speaker,
+          text: line.text,
+        }))}
+        left={<MaterialPane material={material} />}
+        right={
+          <StepPanel
+            currentStep={currentStep}
+            currentPhaseId={session?.currentPhase ?? null}
+            phases={material.phases}
+            questions={material.questions}
+          />
+        }
+      />
     </div>
   );
 }

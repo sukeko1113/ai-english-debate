@@ -23,6 +23,10 @@ export type DebateSide = "for" | "against";
 /** 生徒が選んだ立場。session_arguments の語彙 */
 export type ArgumentSide = "agree" | "disagree";
 
+/** 書き起こしの話者（0001_init.sql の check 制約に合わせる） */
+export const SPEAKERS = ["student", "tutor"] as const;
+export type Speaker = (typeof SPEAKERS)[number];
+
 export const SESSION_STATUSES = [
   "in_progress",
   "scoring",

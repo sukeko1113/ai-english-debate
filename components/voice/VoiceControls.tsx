@@ -1,6 +1,6 @@
 "use client";
 
-import { useRealtimeSession, type VoiceStatus } from "./useRealtimeSession";
+import type { UseRealtimeSession, VoiceStatus } from "./useRealtimeSession";
 
 /**
  * 授業画面の下部にある音声操作（docs/BASIC_DESIGN_v03.md §3.2「下部」）。
@@ -26,12 +26,14 @@ const STATUS_COLOR: Record<VoiceStatus, string> = {
 };
 
 export function VoiceControls({
-  lessonSessionId,
+  session,
+  hasSession,
 }: {
-  lessonSessionId: string | null;
+  /** VoiceSession が持っている音声セッション。ここでは hook を呼ばない */
+  session: UseRealtimeSession;
+  hasSession: boolean;
 }) {
-  const { status, error, audioRef, start, stop } =
-    useRealtimeSession(lessonSessionId);
+  const { status, error, audioRef, start, stop } = session;
 
   const running = status === "connected" || status === "connecting";
 
@@ -41,7 +43,7 @@ export function VoiceControls({
         <button
           type="button"
           onClick={() => void start()}
-          disabled={running || lessonSessionId === null}
+          disabled={running || !hasSession}
           className="rounded bg-foreground px-3 py-1.5 text-sm text-background disabled:opacity-40"
         >
           開始
@@ -83,7 +85,7 @@ export function VoiceControls({
         </span>
       </div>
 
-      {lessonSessionId === null ? (
+      {!hasSession ? (
         <p className="text-xs text-black/60 dark:text-white/60">
           授業セッションがありません。「今日の授業」から開始してください。
         </p>
