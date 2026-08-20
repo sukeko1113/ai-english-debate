@@ -50,7 +50,12 @@ export default async function LessonPage({
       <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1fr)]">
         <MaterialPane material={material} />
         <TranscriptPane topicTitle={material.topic.titleJa} />
-        <StepPanel currentStep={currentStep} questions={material.questions} />
+        <StepPanel
+          currentStep={currentStep}
+          currentPhaseId={session?.currentPhase ?? null}
+          phases={material.phases}
+          questions={material.questions}
+        />
       </div>
 
       <VoiceControls lessonSessionId={session?.id ?? null} />

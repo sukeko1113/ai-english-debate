@@ -20,9 +20,13 @@ const hasDb = Boolean(process.env.DATABASE_URL);
 // dev_seed.sql の架空の生徒A。lib/auth/student.ts の仮実装が返す生徒
 const DEV_STUDENT_ID = "33333333-3333-4333-8333-333333333333";
 
-// content/school-uniforms/beginner.json の dict-1 の正解
-const DICTATION_ANSWER =
-  "Some students like uniforms because they are easy to wear.";
+// 開発用の生徒A は intermediate なので Club Activities が今日の教材になる
+// （supabase/seeds/dev_seed.sql と lib/db/materials.ts findMaterialForLevel）
+const STUDENT_LEVEL = "intermediate";
+
+// content/club-activities/against-intermediate.json の受理する答え。
+// これが出てきたらブラウザへ正解を送っている
+const ACCEPTED_ANSWER = "クラブ活動を任意にすること";
 
 describe.skipIf(!hasDb)("GET /api/lessons/today", () => {
   // 前回の実行や手動確認で残ったセッションに影響されないよう、開始前に消す
@@ -44,12 +48,11 @@ describe.skipIf(!hasDb)("GET /api/lessons/today", () => {
     expect(response.status).toBe(200);
 
     const body = await response.json();
-    expect(body.topic.titleEn).toBe("School Uniforms");
-    expect(body.level).toBe("beginner");
-    expect(body.script).toContain("School uniforms");
-    expect(body.vocabulary).toHaveLength(5);
-    expect(body.grammarPoints).toHaveLength(3);
-    expect(body.questions).toHaveLength(7);
+    expect(body.topic.titleEn).toBe("Making Club Activities Optional");
+    expect(body.level).toBe(STUDENT_LEVEL);
+    expect(body.script).toContain("speaking against making club activities");
+    expect(body.vocabulary.length).toBeGreaterThan(0);
+    expect(body.grammarPoints.length).toBeGreaterThan(0);
   });
 
   it("questions に answer を含めない", async () => {
@@ -62,11 +65,24 @@ describe.skipIf(!hasDb)("GET /api/lessons/today", () => {
     }
   });
 
+  it("授業フェーズに質問文・受理する答え・ヒントを含めない", async () => {
+    const response = await GET();
+    const body = await response.json();
+
+    // 進行の目安は出すが、中身（正解）は出さない
+    expect(body.phases.length).toBeGreaterThan(0);
+    for (const phase of body.phases) {
+      expect(Object.keys(phase).sort()).toEqual(["id", "labelJa", "section"]);
+    }
+  });
+
   it("レスポンス全体に教材の正解が含まれない", async () => {
     const response = await GET();
     const raw = JSON.stringify(await response.json());
 
-    expect(raw).not.toContain(DICTATION_ANSWER);
+    expect(raw).not.toContain(ACCEPTED_ANSWER);
+    expect(raw).not.toContain("ヒント");
+    expect(raw).not.toContain("accept");
     // 模範解答・教員向けメモも出さない
     expect(raw).not.toContain("modelAnswers");
     expect(raw).not.toContain("teacherNote");
@@ -76,7 +92,7 @@ describe.skipIf(!hasDb)("GET /api/lessons/today", () => {
     const before = await GET();
     expect((await before.json()).existingSessionId).toBeNull();
 
-    const materialId = await findMaterialForLevel("beginner");
+    const materialId = await findMaterialForLevel(STUDENT_LEVEL);
     expect(materialId).not.toBeNull();
 
     const session = await startLessonSession({

@@ -40,7 +40,8 @@ function post(body: unknown): Request {
 }
 
 async function newSession(studentId: string): Promise<string> {
-  const materialId = await findMaterialForLevel("beginner");
+  // v03 プロンプトのフェーズを持つ教材（Club Activities / intermediate）
+  const materialId = await findMaterialForLevel("intermediate");
   if (!materialId) throw new Error("教材が無い。npm run seed:content が必要");
   const session = await startLessonSession({
     studentId,
@@ -110,6 +111,68 @@ describe.skipIf(!hasDb)("POST /api/realtime/session", () => {
     expect(rows).toHaveLength(1);
     expect(rows[0]?.call_id).toBe("rtc_test");
     expect(rows[0]?.model).toBe("test-realtime-model");
+  });
+
+  it("教材と現在フェーズの1問を instructions に載せて送る", async () => {
+    const sessionId = await newSession(STUDENT_A);
+
+    const response = await POST(
+      post({ lessonSessionId: sessionId, sdp: "v=0" }),
+    );
+    expect(response.status).toBe(200);
+
+    const sent = createRealtimeCall.mock.calls[0]?.[0];
+    const instructions: string = sent.session.instructions;
+
+    // 教材が入っている（コードに埋め込まず DB から来る）
+    expect(instructions).toContain("speaking against making club activities");
+    // v03 S00 の最初の1問
+    expect(instructions).toContain("`against` は賛成と反対のどちらですか？");
+    // まだ実装していない先のフェーズを混ぜない
+    expect(instructions).not.toContain("Signpost は");
+    // すぐ答えを言わせない
+    expect(instructions).toContain("質問した同じターンで正解を言わない");
+
+    // 点数を扱う tool を渡さない（CLAUDE.md 禁止事項2）
+    expect(sent.session.tools).toBeUndefined();
+  });
+
+  it("現在フェーズをアプリ側に保存する。モデルの記憶に依存しない", async () => {
+    const sessionId = await newSession(STUDENT_A);
+    // 未接続の状態から始める。同じセッションを使い回す他のテストに依存しない
+    await query(
+      `update lesson_sessions set current_phase = null where id = $1`,
+      [sessionId],
+    );
+
+    const before = await query<{ current_phase: string | null }>(
+      `select current_phase from lesson_sessions where id = $1`,
+      [sessionId],
+    );
+    expect(before[0]?.current_phase).toBeNull();
+
+    await POST(post({ lessonSessionId: sessionId, sdp: "v=0" }));
+
+    const after = await query<{ current_phase: string | null }>(
+      `select current_phase from lesson_sessions where id = $1`,
+      [sessionId],
+    );
+    expect(after[0]?.current_phase).toBe("S00_START");
+  });
+
+  it("保存済みのフェーズから再開する", async () => {
+    const sessionId = await newSession(STUDENT_A);
+    await query(
+      `update lesson_sessions set current_phase = 'S10_OPENING' where id = $1`,
+      [sessionId],
+    );
+
+    await POST(post({ lessonSessionId: sessionId, sdp: "v=0" }));
+
+    const instructions: string =
+      createRealtimeCall.mock.calls[0]?.[0].session.instructions;
+    expect(instructions).toContain("`optional` は");
+    expect(instructions).not.toContain("`against` は賛成と反対のどちらですか？");
   });
 
   it("生の student_id を OpenAI へ送らない", async () => {

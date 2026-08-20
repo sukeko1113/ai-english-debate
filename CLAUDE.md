@@ -1,7 +1,12 @@
 # CLAUDE.md — 実装ルール
 
 このリポジトリで作業するときは、まず `docs/BASIC_DESIGN_v03.md` を読むこと。
+授業の進め方は `docs/AI教師プロンプト_v03_ClubActivities授業実装用.md` が基準仕様。
 迷ったら設計書が正。設計書と矛盾する実装をしそうになったら、実装せずに指摘する。
+
+**AI教師プロンプト v03 §9 の保存例は、そのまま実装しない。**
+`save_lesson_result` はモデルに点数を作らせる形になっており、下の禁止事項2に反する。
+記録専用（点数なし・`lesson_id` はサーバー側で確定）に読み替えること。
 
 ---
 
@@ -69,7 +74,12 @@ Edge Functions にビジネスロジックを置かない。DB アクセスは `
 
 この 3 点が通ってから機能を足す。詳細は `docs/TASKS.md`。
 
-対象教材は **School Uniforms / beginner のみ**。中級・上級は後。
+対象教材は次の2つ。他テーマ・他レベルはまだ増やさない。
+
+- **Club Activities / intermediate**（`content/club-activities/against-intermediate.json`）
+  AI教師プロンプト v03 の授業。Take5 で有効なのは S00_START と S10_OPENING のみ
+- **School Uniforms / beginner**（`content/school-uniforms/beginner.json`）
+  Task 1〜4 で使った最小教材
 
 ---
 

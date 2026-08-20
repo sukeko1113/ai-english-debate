@@ -58,7 +58,9 @@ export function buildRealtimeSession(
       input: {
         // 採点はセッション終了後に書き起こしから行うので、書き起こしは必ず取る
         // （docs/REALTIME_ARCHITECTURE.md §6）。保存は Task 7。
-        transcription: { model: "gpt-4o-mini-transcribe", language: "en" },
+        // language を固定しない。v03 の授業は説明も回答も日本語で、
+        // 英文だけが英語になる。"en" に固定すると日本語の回答が壊れる
+        transcription: { model: "gpt-4o-mini-transcribe" },
         turn_detection: TURN_DETECTION,
       },
     },

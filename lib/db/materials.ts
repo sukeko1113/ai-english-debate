@@ -4,8 +4,11 @@ import type {
   DebateTask,
   GrammarPoint,
   LessonMaterial,
+  LessonPhase,
   Level,
   MaterialVersions,
+  PhaseQuestion,
+  PublicPhase,
   PublicQuestion,
   QuestionWithAnswer,
   QuestionType,
@@ -72,6 +75,41 @@ interface CounterargumentRow {
   text: string;
 }
 
+/** materials.lesson_phases の生の形（教材 JSON のキー名のまま） */
+interface RawPhase {
+  id: string;
+  section?: string;
+  label_ja?: string;
+  focus_sentence?: string;
+  opening_ja?: string;
+  questions?: {
+    key: string;
+    ask_ja: string;
+    accept?: string[];
+    hints?: string[];
+    confirm_ja?: string;
+  }[];
+}
+
+function toLessonPhase(raw: RawPhase): LessonPhase {
+  return {
+    id: raw.id,
+    section: raw.section ?? "",
+    labelJa: raw.label_ja ?? raw.id,
+    focusSentence: raw.focus_sentence ?? "",
+    openingJa: raw.opening_ja ?? null,
+    questions: (raw.questions ?? []).map(
+      (question): PhaseQuestion => ({
+        key: question.key,
+        askJa: question.ask_ja,
+        accept: question.accept ?? [],
+        hints: question.hints ?? [],
+        confirmJa: question.confirm_ja ?? "",
+      }),
+    ),
+  };
+}
+
 function toPublicQuestion(row: PublicQuestionRow): PublicQuestion {
   return {
     id: row.id,
@@ -96,7 +134,7 @@ export async function getLessonMaterial(
   );
   if (!material) return null;
 
-  const [vocabulary, grammar, questions, debateTasks, counterarguments] =
+  const [vocabulary, grammar, questions, debateTasks, counterarguments, phases] =
     await Promise.all([
       query<VocabularyRow>(
         `select word, meaning, example
@@ -125,6 +163,7 @@ export async function getLessonMaterial(
           where topic_id = $1 and level = $2 order by against_side, ord`,
         [material.topic_id, material.level],
       ),
+      getLessonPhases(materialId),
     ]);
 
   const topic: Topic = {
@@ -160,7 +199,31 @@ export async function getLessonMaterial(
         text: row.text,
       }),
     ),
+    // 質問文・受理する答え・ヒントは落とす。ブラウザへ正解を送らない
+    phases: phases.map(
+      (phase): PublicPhase => ({
+        id: phase.id,
+        section: phase.section,
+        labelJa: phase.labelJa,
+      }),
+    ),
   };
+}
+
+/**
+ * フェーズ定義（質問・受理する答え・ヒントを含む）。
+ *
+ * **この戻り値をレスポンスへ入れないこと。** モデルへ渡す instructions を
+ * 組み立てるときだけ使う（docs/API_SPEC.md / docs/SECURITY.md §2）。
+ */
+export async function getLessonPhases(
+  materialId: string,
+): Promise<LessonPhase[]> {
+  const row = await queryOne<{ lesson_phases: RawPhase[] }>(
+    `select lesson_phases from materials where id = $1`,
+    [materialId],
+  );
+  return (row?.lesson_phases ?? []).map(toLessonPhase);
 }
 
 /** テーマコードとレベルから教材 ID を引く（開発・テスト用） */

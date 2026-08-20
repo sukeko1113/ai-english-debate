@@ -38,7 +38,10 @@ export async function GET(): Promise<Response> {
       vocabulary: material.vocabulary,
       grammarPoints: material.grammarPoints,
       questions: material.questions,
+      // 進行の目安。質問文・受理する答え・ヒントは含まない
+      phases: material.phases,
       existingSessionId: existing?.id ?? null,
+      currentPhase: existing?.currentPhase ?? null,
     });
   } catch (error) {
     return handleRouteError(error);

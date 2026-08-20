@@ -10,6 +10,7 @@ export {
   findMaterialForLevel,
   findMaterialId,
   getLessonMaterial,
+  getLessonPhases,
   getMaterialVersions,
   getQuestionsWithAnswers,
   questionBelongsToMaterial,
@@ -20,6 +21,7 @@ export {
   completeStep,
   findOwnedSession,
   findUnfinishedSession,
+  setCurrentPhase,
   setSessionStatus,
   startLessonSession,
 } from "./sessions";

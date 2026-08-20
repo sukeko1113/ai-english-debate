@@ -19,6 +19,7 @@ interface SessionRow {
   rubric_version: string;
   prompt_version: string;
   current_step: number;
+  current_phase: string | null;
   status: SessionStatus;
   started_at: Date;
   finished_at: Date | null;
@@ -32,6 +33,7 @@ function toSession(row: SessionRow): LessonSession {
     rubricVersion: row.rubric_version,
     promptVersion: row.prompt_version,
     currentStep: row.current_step,
+    currentPhase: row.current_phase,
     status: row.status,
     startedAt: row.started_at,
     finishedAt: row.finished_at,
@@ -39,7 +41,7 @@ function toSession(row: SessionRow): LessonSession {
 }
 
 const SESSION_COLUMNS = `id, student_id, material_id, rubric_version,
-                         prompt_version, current_step, status,
+                         prompt_version, current_step, current_phase, status,
                          started_at, finished_at`;
 
 /**
@@ -148,6 +150,27 @@ export async function completeStep(
   const row = rows[0];
   if (!row) return { advanced: false, currentStep: session.currentStep };
   return { advanced: true, currentStep: row.current_step };
+}
+
+/**
+ * 授業フェーズを保存する（AI教師プロンプト v03 §6）。
+ *
+ * 進行状態はアプリ側が持つ。接続が切れても、ここに入っている値から
+ * 同じフェーズの instructions を組み直して再開する
+ * （docs/REALTIME_ARCHITECTURE.md §5、§7）。
+ *
+ * 所有者を条件に含めるので、他人のセッションは書き換えられない。
+ */
+export async function setCurrentPhase(
+  sessionId: string,
+  studentId: string,
+  phaseId: string,
+): Promise<void> {
+  await query(
+    `update lesson_sessions set current_phase = $3
+      where id = $1 and student_id = $2`,
+    [sessionId, studentId, phaseId],
+  );
 }
 
 /** 授業の状態を変える。採点の開始・終了で使う */

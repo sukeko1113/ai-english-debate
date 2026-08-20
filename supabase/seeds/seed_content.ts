@@ -58,6 +58,8 @@ interface MaterialFile {
   model_answers?: Record<string, unknown>;
   rubric_version?: string;
   prompt_version?: string;
+  /** v03 プロンプトの授業フェーズ。受理する答えとヒントを含む */
+  lesson_phases?: unknown[];
 }
 
 function assertLevel(value: string, where: string): Level {
@@ -125,8 +127,10 @@ async function seedFile(tx: Transaction, path: string): Promise<void> {
   const materialRows = await tx.query<{ id: string }>(
     `insert into materials
        (topic_id, level, version, script, objectives, status,
-        teacher_note, model_answers, rubric_version, prompt_version)
-     values ($1, $2, $3, $4, $5::jsonb, 'approved', $6, $7::jsonb, $8, $9)
+        teacher_note, model_answers, rubric_version, prompt_version,
+        lesson_phases)
+     values ($1, $2, $3, $4, $5::jsonb, 'approved', $6, $7::jsonb, $8, $9,
+             $10::jsonb)
      on conflict (topic_id, level, version) do update
        set script         = excluded.script,
            objectives     = excluded.objectives,
@@ -134,7 +138,8 @@ async function seedFile(tx: Transaction, path: string): Promise<void> {
            teacher_note   = excluded.teacher_note,
            model_answers  = excluded.model_answers,
            rubric_version = excluded.rubric_version,
-           prompt_version = excluded.prompt_version
+           prompt_version = excluded.prompt_version,
+           lesson_phases  = excluded.lesson_phases
      returning id`,
     [
       topicId,
@@ -147,6 +152,7 @@ async function seedFile(tx: Transaction, path: string): Promise<void> {
       // 授業開始時に lesson_sessions へ固定される版（docs/RUBRIC.md）
       data.rubric_version ?? "v1",
       data.prompt_version ?? "v1",
+      JSON.stringify(data.lesson_phases ?? []),
     ],
   );
   const materialId = materialRows[0]?.id;

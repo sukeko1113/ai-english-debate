@@ -1,13 +1,15 @@
 import { handleRouteError, jsonError, notFound } from "@/lib/auth/respond";
 import { requireStudent } from "@/lib/auth/student";
+import { getLessonMaterial, getLessonPhases } from "@/lib/db/materials";
 import { countRecentCalls, recordRealtimeCall } from "@/lib/db/realtime";
-import { findOwnedSession } from "@/lib/db/sessions";
+import { findOwnedSession, setCurrentPhase } from "@/lib/db/sessions";
 import {
   createRealtimeCall,
   getRealtimeModel,
   OpenAIConfigError,
   OpenAIRequestError,
 } from "@/lib/openai/client";
+import { buildInstructions, resolvePhase } from "@/lib/openai/instructions";
 import { safetyIdFor } from "@/lib/openai/safety-id";
 import { buildRealtimeSession } from "@/lib/openai/session-config";
 
@@ -63,10 +65,11 @@ export async function POST(request: Request): Promise<Response> {
     }
 
     const model = getRealtimeModel();
+    const instructions = await instructionsForSession(session);
+
     const result = await createRealtimeCall({
       sdp,
-      // Task 5 で教材と現在 step から instructions を組み立てて渡す
-      session: buildRealtimeSession({ model }),
+      session: buildRealtimeSession({ model, instructions }),
       safetyId: safetyIdFor(student.id),
     });
 
@@ -92,6 +95,42 @@ export async function POST(request: Request): Promise<Response> {
     }
     return handleRouteError(error);
   }
+}
+
+/**
+ * 教材と現在フェーズから instructions を組み立てる。
+ *
+ * フェーズはアプリ側の lesson_sessions.current_phase が正。未設定なら
+ * 教材の最初のフェーズを使い、その値を保存する。以後は接続が切れても
+ * ここから再開できる（docs/REALTIME_ARCHITECTURE.md §5、§7）。
+ *
+ * 教材にフェーズ定義が無ければ undefined を返し、
+ * lib/openai/session-config.ts の既定 instructions に任せる。
+ */
+async function instructionsForSession(session: {
+  id: string;
+  studentId: string;
+  materialId: string;
+  currentPhase: string | null;
+}): Promise<string | undefined> {
+  const [material, phases] = await Promise.all([
+    getLessonMaterial(session.materialId),
+    getLessonPhases(session.materialId),
+  ]);
+  if (!material) return undefined;
+
+  const resolved = resolvePhase(phases, session.currentPhase);
+  if (!resolved) return undefined;
+
+  if (session.currentPhase !== resolved.phase.id) {
+    await setCurrentPhase(session.id, session.studentId, resolved.phase.id);
+  }
+
+  return buildInstructions({
+    material,
+    phase: resolved.phase,
+    isLastPhase: resolved.isLastPhase,
+  });
 }
 
 function readBody(body: unknown): {

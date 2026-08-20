@@ -78,8 +78,10 @@ on conflict do nothing;
 -- 架空の生徒。実在の氏名を入れないこと
 insert into students (id, auth_user_id, class_id, display_name, current_level)
 values
+  -- 生徒A は Club Activities（intermediate）を受ける。
+  -- 今日の教材は生徒のレベルで選ぶため（lib/db/materials.ts findMaterialForLevel）
   ('33333333-3333-4333-8333-333333333333', null,
-   '11111111-1111-4111-8111-111111111111', '開発用 生徒A', 'beginner'),
+   '11111111-1111-4111-8111-111111111111', '開発用 生徒A', 'intermediate'),
   ('44444444-4444-4444-8444-444444444444', null,
    '11111111-1111-4111-8111-111111111111', '開発用 生徒B', 'beginner')
 on conflict (id) do update

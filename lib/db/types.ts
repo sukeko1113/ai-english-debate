@@ -122,6 +122,38 @@ export interface LessonMaterial {
   questions: PublicQuestion[];
   debateTasks: DebateTask[];
   counterarguments: Counterargument[];
+  /** 進行の目安表示用。質問文と正解は含まない */
+  phases: PublicPhase[];
+}
+
+/**
+ * 授業フェーズ（AI教師プロンプト v03 §6 の状態遷移）。
+ *
+ * **accept と hints は正解にあたる。ブラウザへ送らない。**
+ * モデルへは session instructions 経由でのみ渡す。
+ */
+export interface PhaseQuestion {
+  key: string;
+  askJa: string;
+  accept: string[];
+  hints: string[];
+  confirmJa: string;
+}
+
+export interface LessonPhase {
+  id: string;
+  section: string;
+  labelJa: string;
+  focusSentence: string;
+  openingJa: string | null;
+  questions: PhaseQuestion[];
+}
+
+/** ブラウザへ返してよいフェーズ情報。質問文も正解も含まない */
+export interface PublicPhase {
+  id: string;
+  section: string;
+  labelJa: string;
 }
 
 /** 授業開始時に lesson_sessions へ固定する版（docs/RUBRIC.md） */
@@ -139,6 +171,8 @@ export interface LessonSession {
   rubricVersion: string;
   promptVersion: string;
   currentStep: number;
+  /** v03 プロンプトの状態名。未設定なら教材の最初のフェーズとして扱う */
+  currentPhase: string | null;
   status: SessionStatus;
   startedAt: Date;
   finishedAt: Date | null;

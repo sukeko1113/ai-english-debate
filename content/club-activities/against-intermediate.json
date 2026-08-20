@@ -1,0 +1,132 @@
+{
+  "topic": {
+    "code": "club-activities",
+    "title_en": "Making Club Activities Optional",
+    "title_ja": "クラブ活動の任意化",
+    "category": "school_life",
+    "status": "approved"
+  },
+  "material": {
+    "level": "intermediate",
+    "version": "1.0.0",
+    "objectives": [
+      "speak against ... の意味を理解する",
+      "make A B（AをBの状態にする）の構造を理解する",
+      "not A but B を理解し使える",
+      "Signpost / Present Situation / Cause / Seriousness の違いを説明できる",
+      "任意化への反対理由を自分の英語で2つ言える"
+    ],
+    "script": "Good morning. I am speaking against making club activities optional. I will explain the present situation, examine the causes of problems, and show why this motion is dangerous. Currently, most Japanese schools require students to join clubs. This system helps students develop teamwork and discipline. However, some students feel stressed by mandatory participation. The real problem is not that clubs are required, but that schools offer too few choices. Therefore, we should expand club variety rather than make them optional. If clubs become optional, many will close due to lack of members. Students will lose opportunities to develop skills and friendships. Additionally, without clubs, students may spend excessive time on studies, damaging their mental health. Making clubs optional will harm students' development. Instead, we should improve the club system. I ask for your opposition to this motion.",
+    "script_ja_note": "反対立論。教材の主張は「この立論の主張」として扱い、外部の事実確認は授業の対象外。AI が統計や新しい事実を追加しない。"
+  },
+  "vocabulary": [
+    { "word": "speak against", "meaning": "〜に反対して話す", "example": "I am speaking against making club activities optional." },
+    { "word": "optional", "meaning": "任意の、選択できる", "example": "Club activities would become optional." },
+    { "word": "require A to do", "meaning": "Aに〜することを求める", "example": "Most Japanese schools require students to join clubs." },
+    { "word": "mandatory participation", "meaning": "強制参加", "example": "Some students feel stressed by mandatory participation." },
+    { "word": "too few choices", "meaning": "選択肢が少なすぎる", "example": "Schools offer too few choices." },
+    { "word": "rather than", "meaning": "〜ではなく", "example": "We should expand club variety rather than make them optional." },
+    { "word": "due to", "meaning": "〜のために（原因）", "example": "Many will close due to lack of members." }
+  ],
+  "grammar_points": [
+    {
+      "point": "make A B",
+      "explanation": "「AをBの状態にする」。ここでは A が club activities、B が optional。",
+      "examples": ["making club activities optional", "Making clubs optional will harm students' development."]
+    },
+    {
+      "point": "not A but B",
+      "explanation": "「AではなくB」。この立論の中心となる言い方。",
+      "examples": ["The real problem is not that clubs are required, but that schools offer too few choices."]
+    },
+    {
+      "point": "require A to do",
+      "explanation": "「Aに〜することを求める」。",
+      "examples": ["Most Japanese schools require students to join clubs."]
+    },
+    {
+      "point": "rather than",
+      "explanation": "「BではなくA」。A rather than B の順に注意。",
+      "examples": ["We should expand club variety rather than make them optional."]
+    },
+    {
+      "point": "If ..., will ...",
+      "explanation": "条件とその結果を述べる。",
+      "examples": ["If clubs become optional, many will close due to lack of members."]
+    }
+  ],
+  "questions": [],
+  "debate_tasks": [
+    {
+      "side": "against",
+      "prompt": "You are against making club activities optional. Give two reasons in your own English.",
+      "constraints": { "min_reasons": 2, "language": "en", "turns": 2 },
+      "hint_topics_ja": ["部員不足でクラブが閉鎖する", "スキルや友情を育てる機会を失う", "本当の問題は選択肢が少ないこと"]
+    }
+  ],
+  "ai_counterarguments": [
+    {
+      "against_side": "against",
+      "text": "Some students are very busy or stressed. If club activities are optional, they can choose how to use their time. Why should schools require everyone to join a club?"
+    }
+  ],
+  "model_answers": {
+    "core_claim": "The problem is not compulsory club participation itself, but the lack of choices. Schools should expand club variety rather than make clubs optional.",
+    "en_argument": "I am against making club activities optional. First, if clubs become optional, many clubs will close because of a lack of members. Second, students will lose opportunities to develop skills and friendships. Therefore, we should improve the club system."
+  },
+  "rubric_version": "v1",
+  "prompt_version": "v03-club-activities",
+  "lesson_phases": [
+    {
+      "id": "S00_START",
+      "section": "Opening",
+      "label_ja": "授業開始",
+      "focus_sentence": "Good morning. I am speaking against making club activities optional.",
+      "opening_ja": "では始めましょう。今日は学校のクラブ活動についての反対立論を使います。まず最初の文を読みます。",
+      "questions": [
+        {
+          "key": "s00-against",
+          "ask_ja": "`against` は賛成と反対のどちらですか？",
+          "accept": ["反対", "against", "opposition", "反対側", "反対する", "反対です"],
+          "hints": [
+            "against は方向を表す語で、「〜に向かって逆らう」イメージです。",
+            "「賛成」なら for、「反対」なら against です。"
+          ],
+          "confirm_ja": "そうです。今日は『クラブ活動を任意にすること』への反対立論です。`speak against ...` で『〜に反対して話す』という意味になります。"
+        }
+      ]
+    },
+    {
+      "id": "S10_OPENING",
+      "section": "Opening",
+      "label_ja": "主張の確認",
+      "focus_sentence": "I am speaking against making club activities optional.",
+      "questions": [
+        {
+          "key": "s10-optional",
+          "ask_ja": "`optional` は、必ずやるという意味ですか、それとも選べるという意味ですか？",
+          "accept": ["選べる", "任意", "選択できる", "not required", "自由", "選択制"],
+          "hints": [
+            "option（選択肢）と同じ語のなかまです。",
+            "「必ずやる」なら required、「選べる」なら optional です。"
+          ],
+          "confirm_ja": "そうです。optional は『任意の、選択できる』ですね。"
+        },
+        {
+          "key": "s10-make-a-b",
+          "ask_ja": "`making club activities optional` は全体でどういう意味ですか？",
+          "accept": ["クラブ活動を任意にすること", "部活を選択制にすること", "部活動を任意にすること", "クラブを自由参加にすること"],
+          "hints": [
+            "`make A B` という形が使われています。",
+            "A が club activities、B が optional です。「AをBの状態にする」と考えてみてください。"
+          ],
+          "confirm_ja": "はい。`make A B` で『AをBの状態にする』。ここでは『クラブ活動を任意にすること』です。"
+        }
+      ]
+    }
+  ],
+  "_notes": {
+    "take5_scope": "Take5 で有効なのは S00_START と S10_OPENING のみ。S20 以降（Signpost / Present Situation / Cause / Seriousness / Conclusion / ディクテーション / 英作文 / 論拠作成 / ミニディベート）は未実装。",
+    "v03_s10_q1": "v03 §7 の S10 Q1（`speak against ...` の意味）は S00 の確認文に統合した。S00 の正解と内容が重なるため。"
+  }
+}

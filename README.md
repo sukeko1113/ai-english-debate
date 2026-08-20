@@ -103,13 +103,19 @@ npm run seed:content # 教材JSONの投入
 
 ### 現在の実装状況
 
-`docs/TASKS.md` の Task 4 まで。
+`docs/TASKS.md` の Task 4 ＋ Take5（Club Activities 教材の最小授業）まで。
 
 - `GET /api/lessons/today` / `POST /api/lesson-sessions`
 - 生徒画面 `/student` と授業画面 `/student/lesson/[materialId]`（4領域）
 - `POST /api/realtime/session`（WebRTC の SDP 中継）と授業画面の「開始」「停止」
 
-教材注入は未実装で、instructions は固定文字列（Task 5）。
+- Club Activities 教材と AI教師プロンプト v03 を Realtime session へ注入
+  （`lib/openai/instructions.ts`。**現在フェーズの1問だけ**を渡す）
+
+Take5 で有効な授業フェーズは **S00_START と S10_OPENING のみ**。
+Signpost 以降・ディクテーション・英作文・論拠作成・ミニディベート・採点・教師画面は未実装。
+フェーズを次へ進める function tool も未実装（Task 6）で、いまは
+`lesson_sessions.current_phase` を接続時に保存し、再接続時にそこから組み直す。
 答案の記録も未実装（Task 6）。
 認証は `lib/auth/student.ts` の仮実装で、開発用の固定生徒を返す。
 本番ビルドでは例外を投げるようにしてある。
