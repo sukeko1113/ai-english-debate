@@ -43,10 +43,12 @@ OpenAI との接続はサーバーが行う。
 
 ## セットアップ
 
+Node.js 20.9 以上が必要（Next 16 の要件）。
+
 ```bash
 npm install
 cp .env.example .env      # 値を埋める
-npm run dev
+npm run dev               # http://localhost:3000
 ```
 
 ### ローカルDB（開発用）
@@ -64,10 +66,24 @@ psql aied -f supabase/seeds/dev_seed.sql
 
 ```bash
 npm run dev         # 開発サーバー
-npm run typecheck   # 型チェック
-npm run test        # テスト
-npm run lint
+npm run build       # 本番ビルド
+npm run typecheck   # next typegen + tsc --noEmit
+npm run test        # Vitest（tests/**/*.test.ts）
+npm run lint        # ESLint
 ```
+
+コミット前に `npm run typecheck && npm run test` が通ること。
+
+`tests/guards/` には設計ルールを守らせるためのテストが入っている。
+`OPENAI_API_KEY` を `lib/openai/client.ts` 以外から読むと `npm run test` が落ちる。
+
+### 現在の実装状況
+
+雛形のみ。`docs/BASIC_DESIGN_v03.md` §11 のディレクトリを `.gitkeep` で用意した段階で、
+画面・API・DB アクセス・Realtime 接続はまだ実装していない（`docs/TASKS.md` の Task 2 以降）。
+
+Next 16 固有の作法は `node_modules/next/dist/docs/` を参照する。
+`next dev` が `CLAUDE.md` へ自動追記するのは `next.config.ts` の `agentRules: false` で止めている。
 
 ---
 
