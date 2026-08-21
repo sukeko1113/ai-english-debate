@@ -26,6 +26,7 @@ OpenAI との接続はサーバーが行う。
 | [`docs/RUBRIC.md`](./docs/RUBRIC.md) | 評価基準と採点方法 |
 | [`docs/SECURITY.md`](./docs/SECURITY.md) | APIキー・権限・未成年データ |
 | [`docs/TASKS.md`](./docs/TASKS.md) | Claude Code へのタスク指示 |
+| [`docs/DEPLOY.md`](./docs/DEPLOY.md) | Vercel + Supabase への公開手順 |
 
 ---
 

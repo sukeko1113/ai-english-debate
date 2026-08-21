@@ -1,5 +1,6 @@
+import { SignOutButton } from "@/components/auth/SignOutButton";
 import { StartLessonButton } from "@/components/lesson/StartLessonButton";
-import { requireStudent } from "@/lib/auth/student";
+import { requireStudentOrRedirect } from "@/lib/auth/student";
 import { findMaterialForLevel, getLessonMaterial } from "@/lib/db/materials";
 import { findUnfinishedSession } from "@/lib/db/sessions";
 
@@ -14,7 +15,7 @@ import { findUnfinishedSession } from "@/lib/db/sessions";
 export const dynamic = "force-dynamic";
 
 export default async function StudentHome() {
-  const student = await requireStudent();
+  const student = await requireStudentOrRedirect();
   const materialId = await findMaterialForLevel(student.currentLevel);
   const material = materialId ? await getLessonMaterial(materialId) : null;
   const existing = materialId
@@ -25,9 +26,12 @@ export default async function StudentHome() {
     <main className="mx-auto flex max-w-2xl flex-col gap-6 p-8">
       <div>
         <h1 className="text-2xl font-bold">今日の授業</h1>
-        <p className="text-sm text-black/60 dark:text-white/60">
-          {student.displayName} さん（レベル: {student.currentLevel}）
-        </p>
+        <div className="flex items-center gap-3">
+          <p className="text-sm text-black/60 dark:text-white/60">
+            {student.displayName} さん（レベル: {student.currentLevel}）
+          </p>
+          <SignOutButton />
+        </div>
       </div>
 
       {material ? (

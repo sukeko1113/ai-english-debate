@@ -47,9 +47,19 @@ async function main(): Promise<void> {
   }
 
   // 素の PostgreSQL には auth.uid() が無く、0001 の RLS が流れない。
-  // **開発用。Supabase では実行しない**（supabase/dev/local_auth_shim.sql 参照）
-  console.log("auth シムを流す（ローカル専用）");
-  await query(readSql(SHIM));
+  // **Supabase には auth スキーマが既にあるので流さない**
+  // （supabase/dev/local_auth_shim.sql の先頭に理由を書いてある）。
+  // ホスト先の判定は接続先で行う。--skip-shim でも止められる
+  const url = process.env.DATABASE_URL ?? "";
+  const isLocal = /@(localhost|127\.0\.0\.1|\[::1\])[:/]/.test(url);
+  const skipShim = process.argv.includes("--skip-shim") || !isLocal;
+
+  if (skipShim) {
+    console.log("auth シムを飛ばす（ローカル以外の接続先）");
+  } else {
+    console.log("auth シムを流す（ローカル専用）");
+    await query(readSql(SHIM));
+  }
 
   const applied = await appliedMigrations();
   const files = readdirSync(MIGRATIONS_DIR)

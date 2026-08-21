@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { VoiceSession } from "@/components/voice/VoiceSession";
-import { requireStudent } from "@/lib/auth/student";
+import { requireStudentOrRedirect } from "@/lib/auth/student";
 import { getLessonMaterial } from "@/lib/db/materials";
 import { findUnfinishedSession } from "@/lib/db/sessions";
 import { getTranscript } from "@/lib/db/transcript";
@@ -25,7 +25,7 @@ export default async function LessonPage({
   params: Promise<{ materialId: string }>;
 }) {
   const { materialId } = await params;
-  const student = await requireStudent();
+  const student = await requireStudentOrRedirect();
 
   const material = await getLessonMaterial(materialId).catch(() => null);
   if (!material) notFound();

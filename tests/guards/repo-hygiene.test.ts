@@ -34,7 +34,7 @@ describe("リポジトリの衛生", () => {
       .filter((line) => line.length > 0 && !line.startsWith("#"))
       // 変数名だけ、または開発用の既定値のみを許す
       .filter((line) => /^[A-Z0-9_]+=.+/.test(line))
-      .filter((line) => !/^(NEXT_PUBLIC_APP_URL|SCORER_PROMPT_VERSION|REALTIME_SESSIONS_PER_HOUR)=/.test(line));
+      .filter((line) => !/^(NEXT_PUBLIC_APP_URL|NEXTAUTH_URL|SCORER_PROMPT_VERSION|REALTIME_SESSIONS_PER_HOUR|REALTIME_VAD_EAGERNESS)=/.test(line));
 
     expect(filled, ".env.example には変数名だけを書くこと").toEqual([]);
   });
