@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 import { MaterialPane } from "@/components/lesson/MaterialPane";
 import { StepPanel } from "@/components/lesson/StepPanel";
@@ -38,30 +38,52 @@ export function VoiceSession({
     initialTranscript,
     initialPhaseId,
   );
-  const bottomRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLElement | null>(null);
+  /**
+   * 最新に追従するか。**位置を測って判断しない。**
+   *
+   * 以前は更新のたびに「下から何px離れているか」を測っていたが、
+   * 滑らかスクロールの最中は位置がまだ追いついていないため、
+   * 発話が続くと「離れている」と誤判定して追従をやめてしまっていた。
+   * 一度やめると戻らない。生徒の操作だけでこの値を変える。
+   */
+  const followRef = useRef(true);
 
-  // 新しい発話が出たら最下部へ追従する。
-  // ただし生徒が自分で上へスクロールして読み返しているときは邪魔しない
-  const hasAnchored = useRef(false);
+  /** 生徒が自分でスクロールしたときだけ、追従するかどうかを切り替える */
+  const handleScroll = useCallback(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+
+    const distanceFromBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight;
+    followRef.current = distanceFromBottom <= 80;
+  }, []);
+
+  const pinToBottom = useCallback(() => {
+    const container = scrollRef.current;
+    if (!container || !followRef.current) return;
+    // 瞬間移動させる。アニメーションだと次の発話に追い越される
+    container.scrollTop = container.scrollHeight;
+  }, []);
+
+  // 発話が増えたら最下部へ
+  useEffect(() => {
+    pinToBottom();
+  }, [session.transcript, pinToBottom]);
+
+  // 長い発話の折り返しや画像の読み込みで、あとから高さが変わることがある。
+  // 高さの変化そのものを見て、追従中なら下へ寄せ直す
   useEffect(() => {
     const container = scrollRef.current;
     if (!container) return;
 
-    // 初回表示は必ず最下部から始める。
-    // 途中で読み込み直しても、続きが見えている状態にするため
-    if (!hasAnchored.current) {
-      hasAnchored.current = true;
-      container.scrollTop = container.scrollHeight;
-      return;
+    const observer = new ResizeObserver(() => pinToBottom());
+    observer.observe(container);
+    for (const child of Array.from(container.children)) {
+      observer.observe(child);
     }
-
-    const distanceFromBottom =
-      container.scrollHeight - container.scrollTop - container.clientHeight;
-    if (distanceFromBottom > 120) return;
-
-    bottomRef.current?.scrollIntoView({ block: "end", behavior: "smooth" });
-  }, [session.transcript]);
+    return () => observer.disconnect();
+  }, [session.transcript, pinToBottom]);
 
   return (
     <>
@@ -73,6 +95,7 @@ export function VoiceSession({
 
         <section
           ref={scrollRef}
+          onScroll={handleScroll}
           aria-label="会話履歴"
           className="flex flex-col gap-3 overflow-y-auto p-4"
         >
@@ -109,8 +132,6 @@ export function VoiceSession({
               ))}
             </ol>
           )}
-          {/* 追従用の目印。会話が増えるとここまでスクロールする */}
-          <div ref={bottomRef} />
         </section>
 
         <StepPanel
