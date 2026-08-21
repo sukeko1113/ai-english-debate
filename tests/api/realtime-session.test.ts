@@ -182,20 +182,29 @@ describe.skipIf(!hasDb)("POST /api/realtime/session", () => {
     expect(instructions).not.toContain("`against` は賛成と反対のどちらですか？");
   });
 
-  it("書く課題が無い教材には record_answer を渡さない", async () => {
+  it("教材が持つものに応じて記録用と進行用の tool を渡す", async () => {
     const sessionId = await newSession(STUDENT_A);
 
     await POST(post({ lessonSessionId: sessionId, sdp: "v=0" }));
 
-    // Club Activities（Take5）は questions を持たないので記録用の tool は不要。
-    // フェーズはあるので進行用の tool だけを渡す
+    // Club Activities は3つとも該当する:
+    //   S90 ディクテーション / S100 英作文 → record_answer
+    //   S110 論拠作成                      → record_argument
+    //   15段階のフェーズ                    → mark_phase_complete
     const sent = createRealtimeCall.mock.calls[0]?.[0];
     const names = (sent.session.tools as { name: string }[]).map(
       (tool) => tool.name,
     );
-    // 書く課題（questions）は無いが、論拠を作るフェーズがあるので
-    // record_argument と進行用の tool は渡る
-    expect(names).toEqual(["record_argument", "mark_phase_complete"]);
+    expect(names.sort()).toEqual([
+      "mark_phase_complete",
+      "record_answer",
+      "record_argument",
+    ]);
+
+    // どの tool にも点数の引数が無いこと（CLAUDE.md 禁止事項2）
+    expect(JSON.stringify(sent.session.tools)).not.toMatch(
+      /"(score|grade|correct)"\s*:/,
+    );
   });
 
   it("記録する対象がある教材には record_answer だけを渡す", async () => {

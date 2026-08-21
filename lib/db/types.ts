@@ -153,6 +153,12 @@ export interface LessonPhase {
   /** 一問一答にならないフェーズ（論拠作成・ディベートなど）の進め方 */
   guidanceJa: string[];
   questions: PhaseQuestion[];
+  /**
+   * このフェーズで扱う questions.key。
+   * ディクテーション・英作文のように**画面へ書く**課題で使う。
+   * 正解は questions テーブル側にあり、確定採点もそこを見る。
+   */
+  itemKeys: string[];
 }
 
 /** ブラウザへ返してよいフェーズ情報。質問文も正解も含まない */
@@ -160,6 +166,12 @@ export interface PublicPhase {
   id: string;
   section: string;
   labelJa: string;
+  /**
+   * このフェーズで書く課題の key。回答欄をこのフェーズの分だけに絞る。
+   * **key だけ。正解は含まない**（正解は questions.answer にあり、
+   * getLessonMaterial は select しない）。
+   */
+  itemKeys: string[];
   /**
    * いま読んでいる文。本文の一部なので生徒に見せてよい。
    * 画面で本文のどこを扱っているかを示すために使う。

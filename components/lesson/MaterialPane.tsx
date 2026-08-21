@@ -1,6 +1,14 @@
 "use client";
 
+import { useState } from "react";
+
 import type { LessonMaterial } from "@/lib/db/types";
+
+/**
+ * ディクテーション中は本文を隠す（AI教師プロンプト v03 §7）。
+ * 対象文がそのまま画面に出ていると聞き取りにならない。
+ */
+const HIDE_SCRIPT_PHASES = new Set(["S90_DICTATION"]);
 
 /**
  * 左ペイン: 本文・語彙・文法ポイント（docs/BASIC_DESIGN_v03.md §3.2）。
@@ -20,6 +28,15 @@ export function MaterialPane({
     material.phases.find((candidate) => candidate.id === currentPhaseId) ??
     material.phases[0];
   const focus = phase?.focusSentence?.trim() ?? "";
+  const shouldHide = phase ? HIDE_SCRIPT_PHASES.has(phase.id) : false;
+
+  // フェーズが変わったら伏せ直す。前の段階で開いたままにしない。
+  // effect ではなく描画中に調整する（React の「props が変わったときの state 調整」）
+  const [reveal, setReveal] = useState({ phaseId: phase?.id, shown: false });
+  if (reveal.phaseId !== phase?.id) {
+    setReveal({ phaseId: phase?.id, shown: false });
+  }
+  const revealed = reveal.shown;
 
   return (
     <section
@@ -37,9 +54,26 @@ export function MaterialPane({
             </span>
           ) : null}
         </div>
-        <p className="mt-2 leading-7">
-          <ScriptWithFocus script={material.script} focus={focus} />
-        </p>
+        {shouldHide && !revealed ? (
+          <div className="mt-2 rounded border border-dashed border-black/20 p-4 text-sm dark:border-white/25">
+            <p className="text-black/60 dark:text-white/60">
+              ディクテーション中は本文を隠しています。
+              <br />
+              聞こえたとおりに、右の回答欄へ書いてください。
+            </p>
+            <button
+              type="button"
+              onClick={() => setReveal({ phaseId: phase?.id, shown: true })}
+              className="mt-3 rounded border border-black/20 px-2 py-1 text-xs dark:border-white/25"
+            >
+              本文を表示する
+            </button>
+          </div>
+        ) : (
+          <p className="mt-2 leading-7">
+            <ScriptWithFocus script={material.script} focus={focus} />
+          </p>
+        )}
       </div>
 
       <div>

@@ -94,7 +94,64 @@
       ]
     }
   ],
-  "questions": [],
+  "questions": [
+    {
+      "key": "dict-1",
+      "type": "dictation",
+      "prompt": "聞こえた文をそのまま書いてください。",
+      "answer": "I am speaking against making club activities optional.",
+      "answer_note": "確認ポイント: against / making / optional",
+      "max_score": 1
+    },
+    {
+      "key": "dict-2",
+      "type": "dictation",
+      "prompt": "聞こえた文をそのまま書いてください。",
+      "answer": "The real problem is not that clubs are required, but that schools offer too few choices.",
+      "answer_note": "確認ポイント: not A but B / required / too few choices",
+      "max_score": 1
+    },
+    {
+      "key": "dict-3",
+      "type": "dictation",
+      "prompt": "聞こえた文をそのまま書いてください。",
+      "answer": "If clubs become optional, many will close due to lack of members.",
+      "answer_note": "確認ポイント: If / become optional / due to / lack of members",
+      "max_score": 1
+    },
+    {
+      "key": "write-1",
+      "type": "writing",
+      "prompt": "`require A to do` を使って、「学校は生徒に制服を着ることを求めます」に近い英文を作ってください。",
+      "answer": "Schools require students to wear uniforms.",
+      "answer_note": "唯一の正解ではない。require A to do の形が使えていれば可。",
+      "max_score": 3
+    },
+    {
+      "key": "write-2",
+      "type": "writing",
+      "prompt": "`not A but B` を使って、「問題は時間ではなく、選択肢が少ないことです」という英文を作ってください。",
+      "answer": "The problem is not time, but the lack of choices.",
+      "answer_note": "唯一の正解ではない。not A but B の形が使えていれば可。",
+      "max_score": 3
+    },
+    {
+      "key": "write-3",
+      "type": "writing",
+      "prompt": "`rather than` を使って、「廃止するより改善すべきです」に近い英文を作ってください。",
+      "answer": "We should improve the system rather than abolish it.",
+      "answer_note": "唯一の正解ではない。A rather than B の順序が合っていれば可。",
+      "max_score": 3
+    },
+    {
+      "key": "write-4",
+      "type": "writing",
+      "prompt": "`If ...` を使って、クラブ活動について結果を述べる文を1つ作ってください。",
+      "answer": "If clubs become optional, students will lose chances to make friends.",
+      "answer_note": "教材の論理を使ってよいが、生徒自身に作らせる。内容は自由。",
+      "max_score": 3
+    }
+  ],
   "debate_tasks": [
     {
       "side": "against",
@@ -767,6 +824,33 @@
       ]
     },
     {
+      "id": "S90_DICTATION",
+      "section": "Dictation",
+      "label_ja": "聞き取り",
+      "focus_sentence": "",
+      "item_keys": [
+        "dict-1",
+        "dict-2",
+        "dict-3"
+      ],
+      "questions": [],
+      "note_ja": "画面から本文を隠す。1文ずつ自然な速度で1回読み、生徒の入力を待つ。"
+    },
+    {
+      "id": "S100_WRITING",
+      "section": "Writing",
+      "label_ja": "英作文",
+      "focus_sentence": "",
+      "item_keys": [
+        "write-1",
+        "write-2",
+        "write-3",
+        "write-4"
+      ],
+      "questions": [],
+      "note_ja": "すぐ模範を出さない。キーワード → 文頭 → 文型 → 模範例 の順に助ける。"
+    },
+    {
       "id": "S110_ARGUMENT_BUILDING",
       "section": "Debate",
       "label_ja": "日本語で論拠を作る",
@@ -834,7 +918,7 @@
     }
   ],
   "_notes": {
-    "take5_scope": "S00_START 〜 S80_LOGIC_CHECK と S110〜S140 が有効。S90_DICTATION と S100_WRITING（タイピングが要る2フェーズ）は未実装で、フェーズ一覧にも入れていない。",
+    "take5_scope": "S00〜S140 を通しで用意した。S90_DICTATION と S100_WRITING は画面へ入力する段階で、フェーズは item_keys で questions を参照する。",
     "v03_s10_q1": "v03 §7 の S10 Q1（`speak against ...` の意味）は S00 の確認文に統合した。S00 の正解と内容が重なるため。"
   }
 }

@@ -37,6 +37,7 @@ const firstPhase: LessonPhase = {
     "Good morning. I am speaking against making club activities optional.",
   openingJa: "では始めましょう。",
   guidanceJa: [],
+  itemKeys: [],
   questions: [
     {
       key: "s00-against",
@@ -55,6 +56,7 @@ const secondPhase: LessonPhase = {
   focusSentence: "I am speaking against making club activities optional.",
   openingJa: null,
   guidanceJa: [],
+  itemKeys: [],
   questions: [
     {
       key: "s10-optional",

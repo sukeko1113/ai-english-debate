@@ -135,6 +135,7 @@ export function VoiceSession({
         </section>
 
         <StepPanel
+          lessonSessionId={lessonSessionId}
           currentStep={currentStep}
           currentPhaseId={session.currentPhaseId}
           phases={material.phases}

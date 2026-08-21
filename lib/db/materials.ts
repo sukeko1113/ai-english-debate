@@ -83,6 +83,8 @@ interface RawPhase {
   focus_sentence?: string;
   opening_ja?: string;
   guidance_ja?: string[];
+  /** 画面へ書く課題（ディクテーション・英作文）が参照する questions.key */
+  item_keys?: string[];
   questions?: {
     key: string;
     ask_ja: string;
@@ -98,6 +100,7 @@ function toLessonPhase(raw: RawPhase): LessonPhase {
     section: raw.section ?? "",
     labelJa: raw.label_ja ?? raw.id,
     focusSentence: raw.focus_sentence ?? "",
+    itemKeys: raw.item_keys ?? [],
     openingJa: raw.opening_ja ?? null,
     guidanceJa: raw.guidance_ja ?? [],
     questions: (raw.questions ?? []).map(
@@ -208,6 +211,7 @@ export async function getLessonMaterial(
         section: phase.section,
         labelJa: phase.labelJa,
         focusSentence: phase.focusSentence,
+        itemKeys: phase.itemKeys,
       }),
     ),
   };

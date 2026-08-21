@@ -75,9 +75,15 @@ describe.skipIf(!hasDb)("GET /api/lessons/today", () => {
       expect(Object.keys(phase).sort()).toEqual([
         "focusSentence",
         "id",
+        "itemKeys",
         "labelJa",
         "section",
       ]);
+
+      // itemKeys は questions.key の一覧。**正解そのものは入らない**
+      for (const key of phase.itemKeys) {
+        expect(key).toMatch(/^[a-z0-9-]+$/);
+      }
 
       // focusSentence は画面のハイライト用。本文の一文か、
       // S80_LOGIC_CHECK のようにセクション名を並べた見出しになる。
