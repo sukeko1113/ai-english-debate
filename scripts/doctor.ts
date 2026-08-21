@@ -10,7 +10,7 @@
  */
 
 // .env を読む。**他の import より前に置くこと**
-import "./load_env";
+import { envLoadReport } from "./load_env";
 
 import { closePool, query } from "../lib/db/client";
 import { checkOpenAIAccess } from "../lib/openai/client";
@@ -46,6 +46,58 @@ function checkNode(): Check {
     detail: `v${process.versions.node}`,
     fix: ok ? undefined : "Next 16 は Node.js 20.9 以上が必要。更新すること",
   };
+}
+
+/**
+ * .env そのものを読めているかを最初に示す。
+ *
+ * 変数が軒並み「未設定」になる原因はたいてい環境変数ではなく、
+ * .env が無い / 別名で保存された（Windows のメモ帳が .env.txt にする）/
+ * 別のフォルダで実行している、のいずれか。それを名指しで出す。
+ */
+function checkEnvFile(): Check[] {
+  const loaded = envLoadReport.results.filter((result) => result.loaded);
+  const failed = envLoadReport.results.filter((result) => result.error);
+
+  if (failed.length > 0) {
+    return failed.map((result) => ({
+      label: `${result.file} の読み込み`,
+      level: "ng" as const,
+      detail: result.error ?? "読めなかった",
+      fix: "ファイルの中身を確認する（1行に1つ、NAME=値 の形）",
+    }));
+  }
+
+  if (loaded.length > 0) {
+    return [
+      {
+        label: ".env の読み込み",
+        level: "ok",
+        detail: `${loaded.map((result) => result.file).join(" と ")} を読んだ`,
+      },
+    ];
+  }
+
+  // 見つからなかった。取り違えやすいファイルがあれば名指しする。
+  // **.env.example は雛形なので候補に入れない。** rename させてはいけない
+  const confusable = envLoadReport.lookalikes.filter(
+    (name) =>
+      name !== ".env" && name !== ".env.local" && name !== ".env.example",
+  );
+
+  return [
+    {
+      label: ".env の読み込み",
+      level: "ng",
+      detail: `${envLoadReport.cwd} に .env が無い`,
+      fix:
+        confusable.length > 0
+          ? `${confusable.join(" / ")} はある。名前が違う` +
+            `（メモ帳の「名前を付けて保存」は .env.txt になる）。` +
+            `PowerShell なら: Move-Item ${confusable[0]} .env -Force`
+          : "copy .env.example .env で作り、値を入れる（README「セットアップ」参照）",
+    },
+  ];
 }
 
 function checkEnv(): Check[] {
@@ -241,7 +293,7 @@ async function main(): Promise<void> {
   let ng = 0;
 
   console.log("環境");
-  ng += print([checkNode(), ...checkEnv()]);
+  ng += print([checkNode(), ...checkEnvFile(), ...checkEnv()]);
 
   console.log("");
   console.log("データベース");
