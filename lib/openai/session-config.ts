@@ -34,8 +34,16 @@ const EAGERNESS_VALUES = ["low", "medium", "high", "auto"] as const;
 type Eagerness = (typeof EAGERNESS_VALUES)[number];
 
 function eagernessFromEnv(): Eagerness {
-  const configured = process.env.REALTIME_VAD_EAGERNESS;
+  // 日本語 IME で編集すると行末に全角スペースが入りやすい。
+  // 黙って既定値へ落ちると原因が分からないので、前後の空白は落とす
+  const configured = process.env.REALTIME_VAD_EAGERNESS?.trim().toLowerCase();
   const found = EAGERNESS_VALUES.find((value) => value === configured);
+
+  if (configured && !found) {
+    console.warn(
+      `[realtime] REALTIME_VAD_EAGERNESS="${configured}" は不明な値。high を使う`,
+    );
+  }
   return found ?? "high";
 }
 
